@@ -1,0 +1,9 @@
+# ignore python environment related specifics
+venv
+__pycache__
+
+# ignore user specific environment variables such as API key
+.env
+
+# ignore storage created by flet
+storage

@@ -11,25 +11,10 @@ Please note that last.fm uses "tags" to describe the genre of a song. A song may
         ```
         KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         ```
-3. You will need a directory that holds your mp3 files.
-4. Files *must* be named in the format `Title - Artist.mp3`.
 
 ## Installation
 
 ### From Source
 
-1. Clone the repository into a directory of your choice.
-2. You will need Python 3.x and the following dependencies.
-    1. dotenv: `pip install python-dotenv`
-    2. music-tag: `pip install music-tag`
-    3. customtkinter: `pip install customtkinter`
-    4. requests: `pip install requests`
-    5. pillow: `pip install pillow`
-3. Ensure requirements are met (a virtual environment/venv is recommended).
-4. Run `python3 Main.py` and enjoy!.
-
 ### From Release
 
-1. Download the latest release from the Releases section.
-2. Ensure that the file is executable.
-3. Run and enjoy!
