@@ -308,7 +308,7 @@ class Application(ctk.CTk):
             return
 
         # figure out if album cover path is actually an image file
-        if not os.path.isfile(album_cover_path) or not (album_cover_path.endsWith(".jpg") or album_cover_path.endsWith(".png") or album_cover_path.endsWith(".jpeg")):
+        if not os.path.isfile(album_cover_path) or not (album_cover_path.endswith(".jpg") or album_cover_path.endswith(".png") or album_cover_path.endswith(".jpeg")):
             manual_album_update = ManualAlbumUpdate(
                 self, 
                 self.title, 
