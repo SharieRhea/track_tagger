@@ -1,24 +1,19 @@
-import flet as ft
+import flet
+from flet import (
+    Page,
+)
+import logging
+from pages.start import StartPage
 
-def main(page: ft.Page):
-    counter = ft.Text("0", size=50, data=0)
+def main(page: Page):
+    page.title = "track_tagger"
+    page.padding = 16
 
-    def increment_click(e):
-        counter.data += 1
-        counter.value = str(counter.data)
-        counter.update()
+    app = StartPage(page)
+    page.add(app)
+    page.update()
 
-    page.floating_action_button = ft.FloatingActionButton(
-        icon=ft.Icons.ADD, on_click=increment_click
-    )
-    page.add(
-        ft.SafeArea(
-            ft.Container(
-                counter,
-                alignment=ft.alignment.center,
-            ),
-            expand=True,
-        )
-    )
+# enable logging
+logging.basicConfig(level=logging.INFO)
 
-ft.app(main)
+flet.app(main)
