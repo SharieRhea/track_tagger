@@ -10,7 +10,7 @@ from flet import (
 )
 
 class TagChipsControl():
-    def __init__(self, page: Page):
+    def __init__(self, page: Page, header_text: str):
         self.page = page
         self.content = Column()
         self.tags = []
@@ -18,8 +18,8 @@ class TagChipsControl():
         self.new_tag_field = TextField(label="Tag Name", hint_text="pop rock", on_submit=self.on_click_add)
         self.new_tag_add_button = IconButton(icon=flet.Icons.ADD_ROUNDED, tooltip="add tag", on_click=self.on_click_add)
         self.content.controls = [
-            Text("Auto-accept tags:"), 
-            Row(self.chips),
+            Text(header_text, theme_style=flet.TextThemeStyle.LABEL_LARGE), 
+            Row(self.chips, wrap=True),
             Row([self.new_tag_field, self.new_tag_add_button])
         ]
 
