@@ -4,12 +4,15 @@ from flet import (
 )
 import logging
 from pages.start import StartPage
+from util.state import State
 
 def main(page: Page):
     page.title = "track_tagger"
     page.padding = 16
 
-    app = StartPage(page)
+    state = State(page)
+
+    app = StartPage(state)
     page.add(app)
     page.update()
 

@@ -4,19 +4,19 @@ from flet import (
     Column,
     CrossAxisAlignment,
     IconButton,
-    Page,
     Ref,
     Row,
     Text,
     TextField
 )
 
-class TagChipsControl():
-    def __init__(self, page: Page, header_text: str):
-        self.page = page
-        self.tags = []
+from util.state import State
 
-        # make a reference so that error text can be added later if needed
+class TagChipsControl():
+    def __init__(self, state: State, key: str, header_text: str):
+        self.state = state
+        self.key = key
+                # make a reference so that error text can be added later if needed
         self.new_tag_ref = Ref[TextField]()
         new_tag_field = TextField(ref=self.new_tag_ref, label="Tag Name", hint_text="pop rock", on_submit=self.on_click_add, autofocus=True)
         new_tag_add_button = IconButton(icon=flet.Icons.ADD_ROUNDED, tooltip="add tag", on_click=self.on_click_add)
@@ -32,6 +32,15 @@ class TagChipsControl():
             # alignment start prevents the add button from being moved down when error text appears on the field
             Row([new_tag_field, new_tag_add_button], vertical_alignment=CrossAxisAlignment.START)
         ])
+        
+        # either load tags from client storage or start with none
+        stored_tags = self.state.page.client_storage.get(key)
+        if stored_tags is None:
+            self.tags = []
+        else:
+            self.tags = stored_tags
+            for tag in self.tags:
+                self.chips_row_ref.current.controls.append(Chip(label=Text(tag), on_delete=self.on_delete))
 
     def update_chips(self):
         # reset all chips
@@ -68,3 +77,6 @@ class TagChipsControl():
         self.update_chips()
         # set focus back on the field to enter another tag
         self.new_tag_ref.current.focus()
+
+    def save_info(self):
+        self.state.page.client_storage.set(self.key, self.tags)
