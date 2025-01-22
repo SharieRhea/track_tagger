@@ -5,6 +5,7 @@ from flet import (
     Page,
     Ref,
     Row,
+    Switch,
     Text,
 )
 from controls.filepicker import FilePickerControl
@@ -19,17 +20,28 @@ class StartPage(Container):
         # create a reference for the file picker control so that updates make it back to the page
         file_number_ref = Ref[Text]()
         file_number = Text(ref=file_number_ref, value="")
-        self.file_picker = FilePickerControl(self.page, file_number_ref)
+        file_picker = FilePickerControl(self.page, file_number_ref)
+
         # make a row to hold the file picker button and number of files display
-        files = Row(controls=[self.file_picker.picker_button, file_number])
+        files = Row(controls=[file_picker.picker_button, file_number])
 
-        self.key_field = KeyFieldControl("last.fm API key", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+        # toggle for whether or not to use last.fm
+        self.lastfm = True
+        lastfm_switch = Switch(label="Use last.fm", on_change=self.toggle_lastfm, value=True)
 
-        self.tag_chips = TagChipsControl(self.page)
+        key_field = KeyFieldControl("last.fm API key", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+        tag_chips = TagChipsControl(self.page)
+        self.lastfm_fields = Column(controls=[key_field.field, tag_chips.content])
 
         self.content = Column(controls=[
             Text("Welcome to track_tagger!", theme_style=flet.TextThemeStyle.TITLE_LARGE),
             files,
-            self.key_field.field,
-            self.tag_chips.content
+            lastfm_switch,
+            self.lastfm_fields
         ])
+
+    def toggle_lastfm(self, _):
+        self.lastfm_fields.visible = not self.lastfm_fields.visible
+        if self.content is not None:
+            self.content.update()
