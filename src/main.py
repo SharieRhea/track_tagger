@@ -11,10 +11,7 @@ def main(page: Page):
     page.padding = 16
 
     state = State(page)
-
-    app = StartPage(state)
-    page.add(app)
-    page.update()
+    page.add(StartPage(state))
 
 # enable logging
 logging.basicConfig(level=logging.INFO)

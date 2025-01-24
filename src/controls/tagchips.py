@@ -2,7 +2,6 @@ import flet
 from flet import (
     Chip,
     Column,
-    CrossAxisAlignment,
     IconButton,
     Ref,
     Row,
@@ -29,8 +28,7 @@ class TagChipsControl():
         self.content = Column([
             Text(header_text, theme_style=flet.TextThemeStyle.LABEL_LARGE), 
             chips_row,
-            # alignment start prevents the add button from being moved down when error text appears on the field
-            Row([new_tag_field, new_tag_add_button], vertical_alignment=CrossAxisAlignment.START)
+            Row([new_tag_field, new_tag_add_button])
         ])
         
         # either load tags from client storage or start with none
@@ -80,3 +78,4 @@ class TagChipsControl():
 
     def save_info(self):
         self.state.page.client_storage.set(self.key, self.tags)
+        self.state.auto_accept_tags = self.tags

@@ -36,3 +36,6 @@ class FilePickerControl():
         # make sure the page gets updated to display the newly selected files
         self.file_number_reference.current.value = f"{len(self.files)} files selected"
         self.state.page.update()
+
+    def save_info(self):
+        self.state.files = self.files

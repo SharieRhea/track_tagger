@@ -3,18 +3,22 @@ from flet import (
     Column,
     Container,
     Icon,
+    ListTile,
     OutlinedButton,
     Ref,
     Row,
     SafeArea,
+    SnackBar,
     Switch,
     Text,
     TextField,
     Tooltip,
 )
+
 from controls.filepicker import FilePickerControl
 from controls.keyfield import KeyFieldControl
 from controls.tagchips import TagChipsControl
+from pages.trackedit import TrackEditPage
 from util.state import State
 
 class StartPage(Container):
@@ -25,10 +29,10 @@ class StartPage(Container):
         # create a reference for the file picker control so that updates make it back to the page
         file_number_ref = Ref[Text]()
         file_number = Text(ref=file_number_ref, value="")
-        file_picker = FilePickerControl(self.state, file_number_ref)
+        self.file_picker = FilePickerControl(self.state, file_number_ref)
 
         # make a row to hold the file picker button and number of files display
-        files = Row(controls=[file_picker.picker_button, file_number])
+        files = ListTile(leading=self.file_picker.picker_button, title=file_number)
 
         # allow for changing file names, use reference for error handling
         # TODO: error check this, must be a valid format
@@ -79,6 +83,7 @@ class StartPage(Container):
 
     def toggle_lastfm(self, _):
         self.lastfm_fields.visible = not self.lastfm_fields.visible
+        self.state.use_lastfm = self.lastfm_fields.visible
         if self.content is not None:
             self.content.update()
 
@@ -86,21 +91,35 @@ class StartPage(Container):
         # save to client_storage
         self.key_field.save_info()
         self.tag_chips.save_info()
+        # save files to state
+        self.file_picker.save_info()
 
         # error checking before we move on
-        self.error_check_filename()
-           
-    def error_check_filename(self):
-        if self.filename_field_ref.current.value is None:
+        if len(self.state.files) == 0:
+            self.state.page.overlay.append(SnackBar(content=Text("You must select at least one file to edit!"), open=True))
+            self.state.page.update()
             return
+
+        if self.error_check_filename():
+            return
+
+        # all good, move on to editing
+        self.state.page.controls = [TrackEditPage(self.state)]
+        self.state.page.update()
+           
+    def error_check_filename(self) -> bool:
+        if self.filename_field_ref.current.value is None:
+            return False
         illegal_characters = ["/", "<", ">", ":", "\"", "\\", "|", "?", "*"]
         for character in illegal_characters:
             if character in self.filename_field_ref.current.value:
                 self.filename_field_ref.current.error_text = f"Invalid character '{character}' in format!"
                 if self.content is not None:
                     self.content.update()
-                return
+                return True
         # filename was valid, reset any error text for the field
         self.filename_field_ref.current.error_text = None
         if self.content is not None:
             self.content.update()
+
+        return False
