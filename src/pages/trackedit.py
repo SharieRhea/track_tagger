@@ -61,7 +61,8 @@ class TrackEditPage(Container):
             VerticalDivider(thickness=3),
             info_column,
             buttons
-        ], height=680)) # TODO: define this height to be the height of the screen, needs to be defined for the vertical divider to appear
+        ], expand=True,
+        height=self.state.height))
 
     def on_click_continue(self, _):
         # TODO:

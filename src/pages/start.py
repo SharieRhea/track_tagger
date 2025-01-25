@@ -70,15 +70,26 @@ class StartPage(Container):
         # move on
         continue_button = FilledButton("Continue", icon=flet.Icons.ARROW_FORWARD_ROUNDED, on_click=self.on_click_continue)
 
-        # put all the content together on the page
-        self.content = SafeArea(content=Column(controls=[
+        main_column = Column(controls=[
             Text("Welcome to track_tagger!", theme_style=flet.TextThemeStyle.HEADLINE_LARGE),
             files,
             filename,
             lastfm_switch,
             self.lastfm_fields,
-            continue_button
-        ]))
+        ], expand=8)
+
+        button_column = Column(
+            controls=[continue_button], 
+            alignment=flet.MainAxisAlignment.END, 
+            horizontal_alignment=flet.CrossAxisAlignment.END,
+            expand=2
+        )
+
+        # put all the content together on the page
+        self.content = SafeArea(content=Row(controls=[
+            main_column,
+            button_column
+        ]), height=self.state.height, width=self.state.width)
 
     def toggle_lastfm(self, _):
         self.lastfm_fields.visible = not self.lastfm_fields.visible

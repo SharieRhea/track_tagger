@@ -11,6 +11,7 @@ def main(page: Page):
     page.padding = 16
 
     state = State(page)
+    page.on_resized = state.on_resized
     page.add(StartPage(state))
 
 # enable logging
