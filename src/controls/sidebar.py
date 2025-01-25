@@ -11,7 +11,10 @@ class Sidebar():
         self.items = []
         self.initialize_items()
 
-        self.content = ListView(controls=self.items)
+        self.content = ListView(
+            controls=self.items,
+            width=250
+        )
 
     def initialize_items(self):
         for file in self.state.files:

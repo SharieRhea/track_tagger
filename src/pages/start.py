@@ -2,9 +2,9 @@ import flet
 from flet import (
     Column,
     Container,
+    FilledButton,
     Icon,
     ListTile,
-    OutlinedButton,
     Ref,
     Row,
     SafeArea,
@@ -35,7 +35,6 @@ class StartPage(Container):
         files = ListTile(leading=self.file_picker.picker_button, title=file_number)
 
         # allow for changing file names, use reference for error handling
-        # TODO: error check this, must be a valid format
         self.filename_field_ref = Ref[TextField]()
         filename_field = TextField(
             ref=self.filename_field_ref,
@@ -69,7 +68,7 @@ class StartPage(Container):
         self.lastfm_fields = Column(controls=[key_row, self.tag_chips.content])
 
         # move on
-        continue_button = OutlinedButton("Continue", icon=flet.Icons.ARROW_FORWARD_ROUNDED, on_click=self.on_click_continue)
+        continue_button = FilledButton("Continue", icon=flet.Icons.ARROW_FORWARD_ROUNDED, on_click=self.on_click_continue)
 
         # put all the content together on the page
         self.content = SafeArea(content=Column(controls=[
