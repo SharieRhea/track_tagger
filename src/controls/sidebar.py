@@ -26,7 +26,7 @@ class Sidebar():
                 bgcolor = flet.Colors.SECONDARY_CONTAINER
             self.items.append(Container(
                 content=Text(self.state.files[index].name), 
-                border_radius=flet.border_radius.all(50), 
+                border_radius=flet.border_radius.all(10), 
                 bgcolor=bgcolor, 
                 ink=True,
                 margin=flet.margin.symmetric(4, 0), 

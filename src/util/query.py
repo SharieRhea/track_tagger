@@ -30,3 +30,9 @@ def track_getinfo(key, title, artist) -> dict | None:
         return None
     logging.info(info.json())
     return info.json()
+
+def get_album_image(url) -> bytes | None:
+    info = requests.get(url)
+    if info.status_code != 200:
+        return None
+    return info.content
