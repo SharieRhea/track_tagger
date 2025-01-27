@@ -106,11 +106,19 @@ class StartPage(Container):
 
         # error checking before we move on
         if len(self.state.files) == 0:
-            self.state.page.overlay.append(SnackBar(content=Text("You must select at least one file to edit!"), open=True))
+            self.state.page.overlay.append(SnackBar(
+                content=Text("You must select at least one file to edit!", color=flet.Colors.ON_ERROR_CONTAINER), 
+                open=True, 
+                bgcolor=flet.Colors.ERROR_CONTAINER
+            ))
             self.state.page.update()
             return
 
         if self.error_check_filename():
+            return
+
+        # if lastfm is being used, make sure the key works
+        if self.state.use_lastfm and self.key_field.error_check():
             return
 
         # all good, move on to editing
@@ -118,8 +126,10 @@ class StartPage(Container):
         self.state.page.update()
            
     def error_check_filename(self) -> bool:
+        # if filename is blank, filenames will be left alone
         if self.filename_field_ref.current.value is None:
             return False
+
         illegal_characters = ["/", "<", ">", ":", "\"", "\\", "|", "?", "*"]
         for character in illegal_characters:
             if character in self.filename_field_ref.current.value:
@@ -127,9 +137,9 @@ class StartPage(Container):
                 if self.content is not None:
                     self.content.update()
                 return True
+
         # filename was valid, reset any error text for the field
         self.filename_field_ref.current.error_text = None
         if self.content is not None:
             self.content.update()
-
         return False
