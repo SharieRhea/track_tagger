@@ -48,12 +48,12 @@ class TrackEditPage(Container):
             album_field,
             album_artist_field,
             tags.content
-        ])
+        ], expand=8)
 
         buttons = Column(controls=[
             OutlinedButton("Search last.fm", disabled=not self.state.use_lastfm, on_click=self.on_click_search_lastfm),
             FilledButton("Continue", icon=flet.Icons.ARROW_FORWARD_ROUNDED, on_click=self.on_click_continue)
-        ], alignment=flet.MainAxisAlignment.END)
+        ], alignment=flet.MainAxisAlignment.END, horizontal_alignment=flet.CrossAxisAlignment.END, expand=2)
 
         # put all the content together on the page
         self.content = SafeArea(content=Row(controls=[
@@ -62,7 +62,7 @@ class TrackEditPage(Container):
             info_column,
             buttons
         ], expand=True,
-        height=self.state.height))
+        height=self.state.height, width=self.state.width))
 
     def on_click_continue(self, _):
         # TODO:
