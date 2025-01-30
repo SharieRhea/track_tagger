@@ -40,6 +40,8 @@ class TagChipsControl():
             for tag in self.tags:
                 self.chips_row_ref.current.controls.append(Chip(label=Text(tag), on_delete=self.on_delete))
 
+    # TODO: these methods could be cleaned up and organized better
+
     def update_chips(self):
         # reset all chips
         self.chips_row_ref.current.controls = []
@@ -47,6 +49,12 @@ class TagChipsControl():
         for tag in self.tags:
             self.chips_row_ref.current.controls.append(Chip(label=Text(tag), on_delete=self.on_delete))
         self.content.update()
+
+    def add_tags(self, tags):
+        for tag in tags:
+            if tag != "":
+                self.tags.append(tag)
+                self.chips_row_ref.current.controls.append(Chip(label=Text(tag), on_delete=self.on_delete))
 
     def on_delete(self, event):
         self.tags.remove(event.control.label.value)

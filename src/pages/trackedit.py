@@ -18,7 +18,7 @@ from flet.app import flet
 
 from controls.sidebar import Sidebar
 from controls.tagchips import TagChipsControl
-from util import query
+from util import metadata, query
 from util.state import State
 
 class TrackEditPage(Container):
@@ -87,9 +87,22 @@ class TrackEditPage(Container):
         ], expand=True,
         height=self.state.height, width=self.state.width))
 
+        # try to read metadata for the first file
+        self.read_metadata()
+
     def on_click_continue(self, _):
         # TODO:
         pass
+
+    def read_metadata(self):
+        data = metadata.read_metadata(self.state.files[self.state.current_file_index].path)
+        self.title_field.value = data[0]
+        self.artist_field.value = data[1]
+        self.album_field.value = data[2]
+        self.album_artist_field.value = data[3]
+        # FIX: this doesn't display anything
+        # self.album_image.src = data[4]
+        self.tags.add_tags(data[5])
 
     def on_click_search_lastfm(self, _):
         # search based on what's entered in title and artist fields
