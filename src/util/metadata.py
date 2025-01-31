@@ -1,4 +1,6 @@
+from types import NoneType
 import music_tag
+import base64
 from io import BytesIO
 
 # TODO: figure out how to make pyright happy
@@ -10,6 +12,12 @@ def read_metadata(filepath: str) -> tuple:
     album = str(file["album"])
     album_artist = str(file["albumartist"])
     album_art = file["artwork"]
+    if album_art.first is not None:
+        album_art_bytes = album_art.first.data
+        # encode into base64 then get the base64 string for displaying with flet image
+        base64_bytes = base64.b64encode(album_art_bytes)
+        album_art = base64_bytes.decode("ascii")
+
     tags = str(file["genre"]).split(", ")
 
     return (title, artist, album, album_artist, album_art, tags)

@@ -100,8 +100,7 @@ class TrackEditPage(Container):
         self.artist_field.value = data[1]
         self.album_field.value = data[2]
         self.album_artist_field.value = data[3]
-        # FIX: this doesn't display anything
-        # self.album_image.src = data[4]
+        self.album_image.src_base64 = data[4]
         self.tags.add_tags(data[5])
 
     def on_click_search_lastfm(self, _):
