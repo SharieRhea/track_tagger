@@ -50,7 +50,9 @@ class TagChipsControl():
             self.chips_row_ref.current.controls.append(Chip(label=Text(tag), on_delete=self.on_delete))
         self.content.update()
 
-    def add_tags(self, tags):
+    def update_tags(self, tags):
+        self.tags = []
+        self.chips_row_ref.current.controls = []
         for tag in tags:
             if tag != "":
                 self.tags.append(tag)

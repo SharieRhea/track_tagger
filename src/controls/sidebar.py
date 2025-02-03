@@ -1,6 +1,7 @@
 from flet import (
     Container,
-    ListView, 
+    ListView,
+    Ref, 
     Text,
 )
 import flet
@@ -10,15 +11,16 @@ from util.state import State
 class Sidebar():
     def __init__(self, state: State):
         self.state = state
-        self.items = []
-        self.initialize_items()
 
+        self.reference = Ref[ListView]()
         self.content = ListView(
-            controls=self.items,
+            ref=self.reference,
             width=250
         )
+        self.initialize_items()
 
     def initialize_items(self):
+        self.items = []
         for index in range(0, len(self.state.files)):
             bgcolor = flet.Colors.SURFACE_CONTAINER_HIGHEST
             # make it obvious which song is being edited currently
@@ -31,9 +33,13 @@ class Sidebar():
                 ink=True,
                 margin=flet.margin.symmetric(4, 0), 
                 padding=flet.padding.symmetric(4, 12),
-                # FIX: this always uses the last index, find a way to not use only one reference for this?
-                on_click=lambda _: self.on_click(index)
+                on_click=lambda _, index=index: self.on_click(index)
             ))
+        self.reference.current.controls = self.items
 
     def on_click(self, index):
         self.state.current_file_index = index
+        # reinitialize to update which one is highlighted
+        self.initialize_items()
+        # read the metadata for the new current file and update
+        self.state.update_trackedit_page()

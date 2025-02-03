@@ -6,6 +6,7 @@ from flet import (
     FloatingActionButton,
     Image,
     OutlinedButton,
+    Ref,
     Row, 
     SafeArea,
     SnackBar,
@@ -25,8 +26,12 @@ class TrackEditPage(Container):
     def __init__(self, state: State):
         super().__init__()
         self.state = state
+        self.state.set_trackedit_page(self)
 
         sidebar = Sidebar(state)
+
+        self.page_title_ref = Ref[Text]()
+        page_title = Text(ref=self.page_title_ref, value=self.state.files[self.state.current_file_index].name, theme_style=flet.TextThemeStyle.HEADLINE_LARGE)
 
         self.title_field = TextField(
             label="Title",
@@ -50,7 +55,8 @@ class TrackEditPage(Container):
         self.album_image = Image(src="generic_album_cover.jpg", gapless_playback=True, border_radius=10, height=400, width=400)
 
         left_column = Column(controls=[
-            Text(self.state.files[self.state.current_file_index].name, theme_style=flet.TextThemeStyle.HEADLINE_LARGE),
+            page_title,
+            self.title_field,
             self.title_field,
             self.artist_field,
             self.album_field,
@@ -96,12 +102,13 @@ class TrackEditPage(Container):
 
     def read_metadata(self):
         data = metadata.read_metadata(self.state.files[self.state.current_file_index].path)
+        self.page_title_ref.current.value = self.state.files[self.state.current_file_index].name
         self.title_field.value = data[0]
         self.artist_field.value = data[1]
         self.album_field.value = data[2]
         self.album_artist_field.value = data[3]
         self.album_image.src_base64 = data[4]
-        self.tags.add_tags(data[5])
+        self.tags.update_tags(data[5])
 
     def on_click_search_lastfm(self, _):
         # search based on what's entered in title and artist fields
@@ -142,11 +149,13 @@ class TrackEditPage(Container):
             # -1 to get the largest image resolution available
             album_image_url = info["track"]["album"]["image"][-1]["#text"]
             if album_image_url != "":
-                # album_image = query.get_album_image(album_image_url) 
-                # if album_image is not None:
                 self.album_image.src = album_image_url
 
-        # TODO: populate tags from the query
+        # populate any tags
+        tags_to_add = []
+        for tag in info["track"]["toptags"]["tag"]:
+            tags_to_add.append(tag["name"])
+        self.tags.update_tags(tags_to_add)
 
         # update the page to show all changes
         if self.content is not None:

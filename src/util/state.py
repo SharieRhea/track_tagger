@@ -20,6 +20,13 @@ class State:
             self.height = self.height - 30
         self.width = self.page.window.width
 
+    def set_trackedit_page(self, trackedit_page):
+        self.trackedit_page = trackedit_page
+
+    def update_trackedit_page(self):
+        self.trackedit_page.read_metadata()
+        self.page.update()
+
     def on_resized(self, event: WindowResizeEvent):
         # reset the dimensions
         # for some reason the height is always too big, at least on linux
