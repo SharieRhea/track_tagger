@@ -13,7 +13,7 @@ from flet import (
     Stack,
     Text,
     TextField,
-    VerticalDivider, 
+    VerticalDivider,
 )
 from flet.app import flet
 
@@ -28,7 +28,7 @@ class TrackEditPage(Container):
         self.state = state
         self.state.set_trackedit_page(self)
 
-        sidebar = Sidebar(state)
+        self.sidebar = Sidebar(state)
 
         self.page_title_ref = Ref[Text]()
         page_title = Text(ref=self.page_title_ref, value=self.state.files[self.state.current_file_index].name, theme_style=flet.TextThemeStyle.HEADLINE_LARGE)
@@ -56,7 +56,6 @@ class TrackEditPage(Container):
 
         left_column = Column(controls=[
             page_title,
-            self.title_field,
             self.title_field,
             self.artist_field,
             self.album_field,
@@ -86,7 +85,7 @@ class TrackEditPage(Container):
 
         # put all the content together on the page
         self.content = SafeArea(content=Row(controls=[
-            sidebar.content,
+            self.sidebar.content,
             VerticalDivider(thickness=3),
             left_column,
             right_column
@@ -97,8 +96,24 @@ class TrackEditPage(Container):
         self.read_metadata()
 
     def on_click_continue(self, _):
-        # TODO:
-        pass
+        data = (
+            self.title_field.value,
+            self.artist_field.value,
+            self.album_field.value,
+            self.album_artist_field.value,
+            self.album_image,
+            self.tags.tags
+        )
+        metadata.write_metadata(self.state.files[self.state.current_file_index].path, data)        
+        self.state.current_file_index += 1
+        # go back to start page if done, otherwise move to next file
+        if self.state.current_file_index >= len(self.state.files):
+            # self.state.page.controls = [StartPage(self.state)]
+            self.state.page.update()
+        else:
+            self.read_metadata()
+            self.sidebar.initialize_items()
+            self.state.page.update()
 
     def read_metadata(self):
         data = metadata.read_metadata(self.state.files[self.state.current_file_index].path)
@@ -108,6 +123,8 @@ class TrackEditPage(Container):
         self.album_field.value = data[2]
         self.album_artist_field.value = data[3]
         self.album_image.src_base64 = data[4]
+        if self.album_image.src_base64 is not None:
+            self.album_image.src = None
         self.tags.update_tags(data[5])
 
     def on_click_search_lastfm(self, _):
@@ -122,7 +139,7 @@ class TrackEditPage(Container):
             return
         self.title_field.error_text = None
         if artist is None or artist == "":
-            self.artist_field.error_text="A title is required to search last.fm!"
+            self.artist_field.error_text="An artist is required to search last.fm!"
             self.artist_field.update()
             return
         self.artist_field.error_text = None
@@ -150,6 +167,7 @@ class TrackEditPage(Container):
             album_image_url = info["track"]["album"]["image"][-1]["#text"]
             if album_image_url != "":
                 self.album_image.src = album_image_url
+                self.album_image.src_base64 = None
 
         # populate any tags
         tags_to_add = []

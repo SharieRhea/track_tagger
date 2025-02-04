@@ -1,7 +1,8 @@
-from types import NoneType
+from io import BytesIO
 import music_tag
 import base64
-from io import BytesIO
+
+from util import query
 
 # TODO: figure out how to make pyright happy
 
@@ -28,6 +29,13 @@ def write_metadata(filepath: str, data: tuple):
     file["artist"] = data[1]
     file["album"] = data[2]
     file["albumartist"] = data[3] 
-    file["artwork"] = BytesIO(data[4]).read()
-    file["genre"] = ", ".join(data[5])
+
+    if "generic_album_cover.jpg" in data[4].src:
+        file["artwork"] = BytesIO(open("assets/generic_album_cover.jpg")).read()
+    elif data[4].src != "":
+        file["artwork"] = BytesIO(query.get_album_image(data[4].src)).read()
+    elif data[4].src_base64 != "":
+        file["artwork"] = BytesIO(base64.b64decode(data[4].src_base64)).read()
+
+    file["genre"] = ", ".join(data[5]).lower()
     file.save()
