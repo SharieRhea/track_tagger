@@ -2,6 +2,9 @@ from flet import (
     Column,
     Container,
     CrossAxisAlignment,
+    FilePicker,
+    FilePickerFileType,
+    FilePickerResultEvent,
     FilledButton,
     FloatingActionButton,
     Image,
@@ -180,5 +183,14 @@ class TrackEditPage(Container):
             self.content.update()
 
     def on_click_edit_album_image(self, _):
-        # TODO:
-        pass
+        picker = FilePicker(on_result=self.on_album_image_result)
+        # set the dialog to appear as an overlay so it does not shift existing page content
+        self.state.page.overlay.append(picker)
+        self.state.page.update()
+        picker.pick_files(allow_multiple=False, file_type=FilePickerFileType.IMAGE)
+
+    def on_album_image_result(self, event: FilePickerResultEvent):
+        if event.files is not None:
+            self.album_image.src_base64 = None
+            self.album_image.src = event.files[0].path
+            self.album_image.update()

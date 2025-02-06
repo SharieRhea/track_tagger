@@ -1,4 +1,5 @@
 from flet import (
+    FilePickerFileType,
     OutlinedButton,
     FilePicker,
     FilePickerResultEvent,
@@ -7,6 +8,8 @@ from flet import (
 )
 
 from util.state import State
+
+# TODO: music tag can handle other audio types like wav, update text to be agnostic towards audio file type
 
 class FilePickerControl():
     def __init__(self, state: State, file_number_reference: Ref[Text]):
@@ -20,7 +23,7 @@ class FilePickerControl():
 
         self.picker_button = OutlinedButton(
             "Choose .mp3 files...",
-            on_click=lambda _: self.picker.pick_files(allow_multiple=True)
+            on_click=lambda _: self.picker.pick_files(allow_multiple=True, file_type=FilePickerFileType.AUDIO)
         )
 
         # begin with no files
