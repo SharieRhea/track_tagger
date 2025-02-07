@@ -7,6 +7,7 @@ from flet import (
     Text,
 )
 
+from util.entrystatus import EntryStatus
 from util.state import State
 
 # TODO: music tag can handle other audio types like wav, update text to be agnostic towards audio file type
@@ -41,4 +42,5 @@ class FilePickerControl():
         self.state.page.update()
 
     def save_info(self):
-        self.state.files = self.files
+        for file in self.files:
+            self.state.files.append({"file": file, "name": file.name, "path": file.path, "status": EntryStatus.UNREAD})

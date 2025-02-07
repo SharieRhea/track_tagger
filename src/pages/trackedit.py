@@ -34,7 +34,7 @@ class TrackEditPage(Container):
         self.sidebar = Sidebar(state)
 
         self.page_title_ref = Ref[Text]()
-        page_title = Text(ref=self.page_title_ref, value=self.state.files[self.state.current_file_index].name, theme_style=flet.TextThemeStyle.HEADLINE_LARGE)
+        page_title = Text(ref=self.page_title_ref, value=self.state.files[self.state.current_index]["name"], theme_style=flet.TextThemeStyle.HEADLINE_LARGE)
 
         self.title_field = TextField(
             label="Title",
@@ -55,7 +55,7 @@ class TrackEditPage(Container):
 
         self.tags = TagChipsControl(self.state, "track_tags", "Tags")
 
-        self.album_image = Image(src="generic_album_cover.jpg", gapless_playback=True, border_radius=10, height=400, width=400)
+        self.album_image = Image(gapless_playback=True, border_radius=10, height=400, width=400)
 
         left_column = Column(controls=[
             page_title,
@@ -68,7 +68,7 @@ class TrackEditPage(Container):
 
         buttons = Column(controls=[
             OutlinedButton("Search last.fm", disabled=not self.state.use_lastfm, on_click=self.on_click_search_lastfm),
-            FilledButton("Continue", icon=flet.Icons.ARROW_FORWARD_ROUNDED, on_click=self.on_click_continue)
+            FilledButton("Save and Continue", icon=flet.Icons.ARROW_FORWARD_ROUNDED, on_click=self.on_click_continue)
         ], horizontal_alignment=flet.CrossAxisAlignment.END)
 
         album_image_stack = Stack(controls=[
@@ -107,10 +107,10 @@ class TrackEditPage(Container):
             self.album_image,
             self.tags.tags
         )
-        metadata.write_metadata(self.state.files[self.state.current_file_index].path, data)        
-        self.state.current_file_index += 1
+        metadata.write_metadata(self.state.files[self.state.current_index]["path"], data)        
+        self.state.current_index += 1
         # go back to start page if done, otherwise move to next file
-        if self.state.current_file_index >= len(self.state.files):
+        if self.state.current_index >= len(self.state.files):
             # self.state.page.controls = [StartPage(self.state)]
             self.state.page.update()
         else:
@@ -119,15 +119,17 @@ class TrackEditPage(Container):
             self.state.page.update()
 
     def read_metadata(self):
-        data = metadata.read_metadata(self.state.files[self.state.current_file_index].path)
-        self.page_title_ref.current.value = self.state.files[self.state.current_file_index].name
+        data = metadata.read_metadata(self.state.files[self.state.current_index]["path"])
+        self.page_title_ref.current.value = self.state.files[self.state.current_index]["name"]
         self.title_field.value = data[0]
         self.artist_field.value = data[1]
         self.album_field.value = data[2]
         self.album_artist_field.value = data[3]
-        self.album_image.src_base64 = data[4]
-        if self.album_image.src_base64 is not None:
-            self.album_image.src = None
+        if data[4] is None:
+            self.album_image.src_base64 = data[4]
+        else:
+            self.album_image.src = "generic_album_cover.jpg"
+            self.album_image.src_base64 = None
         self.tags.update_tags(data[5])
 
     def on_click_search_lastfm(self, _):
