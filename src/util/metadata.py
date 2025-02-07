@@ -35,7 +35,7 @@ def write_metadata(filepath: str, data: tuple):
 
     image_bytes = open("src/assets/generic_album_cover.jpg", "rb").read()
 
-    if data[4].src_base64 != "":
+    if data[4].src_base64 is not None:
         file["artwork"] = BytesIO(base64.b64decode(data[4].src_base64)).read()
     elif "http" in data[4].src:
         result = query.get_album_image(data[4].src)

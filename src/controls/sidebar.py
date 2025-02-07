@@ -20,8 +20,8 @@ class Sidebar():
             width=250
         )
 
-        # colors for badges representing unread, read, modified, and saved
-        self.colors = [Colors.RED_400, Colors.BLUE_400, Colors.ORANGE_400, Colors.GREEN_400]
+        # colors for badges representing unread, read, and saved
+        self.colors = [Colors.RED_400, Colors.BLUE_400,Colors.GREEN_400]
 
         self.initialize_items()
 

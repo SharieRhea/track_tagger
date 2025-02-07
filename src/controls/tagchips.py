@@ -11,6 +11,9 @@ from flet import (
 
 from util.state import State
 
+# TODO: add functionality for visible but not applied tags
+# would be used for tags found from lastfm but NOT in the auto accept list, user must click to enable them
+
 class TagChipsControl():
     def __init__(self, state: State, key: str, header_text: str):
         self.state = state

@@ -1,4 +1,5 @@
 from flet import (
+    AlertDialog,
     Column,
     Container,
     CrossAxisAlignment,
@@ -6,6 +7,7 @@ from flet import (
     FilePickerFileType,
     FilePickerResultEvent,
     FilledButton,
+    FilledTonalButton,
     FloatingActionButton,
     Image,
     OutlinedButton,
@@ -15,6 +17,7 @@ from flet import (
     SnackBar,
     Stack,
     Text,
+    TextButton,
     TextField,
     VerticalDivider,
 )
@@ -23,6 +26,7 @@ from flet.app import flet
 from controls.sidebar import Sidebar
 from controls.tagchips import TagChipsControl
 from util import metadata, query
+from util.entrystatus import EntryStatus
 from util.state import State
 
 class TrackEditPage(Container):
@@ -68,6 +72,7 @@ class TrackEditPage(Container):
 
         buttons = Column(controls=[
             OutlinedButton("Search last.fm", disabled=not self.state.use_lastfm, on_click=self.on_click_search_lastfm),
+            OutlinedButton("Save and Exit", icon=flet.Icons.EXIT_TO_APP_ROUNDED, on_click=lambda _: self.state.page.open(self.end_dialog)),
             FilledButton("Save and Continue", icon=flet.Icons.ARROW_FORWARD_ROUNDED, on_click=self.on_click_continue)
         ], horizontal_alignment=flet.CrossAxisAlignment.END)
 
@@ -85,6 +90,17 @@ class TrackEditPage(Container):
             album_image_stack,
             buttons
         ], alignment=flet.MainAxisAlignment.SPACE_BETWEEN, horizontal_alignment=CrossAxisAlignment.END, expand=1)
+
+        self.end_dialog = AlertDialog(
+            modal=True,
+            title=Text("Do you wish to go back to the start page?"),
+            content=Text("Only saved files will keep their modifications."),
+            actions=[
+                # TODO: figure out how to create a new start page without circular imports :(
+                FilledTonalButton("Yes", on_click=lambda _: print(self.state.page)),
+                TextButton("No", on_click=lambda _: self.state.page.close(self.end_dialog)),
+            ],
+        )
 
         # put all the content together on the page
         self.content = SafeArea(content=Row(controls=[
@@ -108,11 +124,15 @@ class TrackEditPage(Container):
             self.tags.tags
         )
         metadata.write_metadata(self.state.files[self.state.current_index]["path"], data)        
+        # set the current file to "saved" status
+        self.state.files[self.state.current_index]["status"] = EntryStatus.SAVED
+        
         self.state.current_index += 1
         # go back to start page if done, otherwise move to next file
         if self.state.current_index >= len(self.state.files):
-            # self.state.page.controls = [StartPage(self.state)]
-            self.state.page.update()
+            # in case the user does not exit
+            self.state.current_index -= 1
+            self.state.page.open(self.end_dialog)
         else:
             self.read_metadata()
             self.sidebar.initialize_items()
@@ -120,6 +140,12 @@ class TrackEditPage(Container):
 
     def read_metadata(self):
         data = metadata.read_metadata(self.state.files[self.state.current_index]["path"])
+
+        # set the current file to "read" status if not already
+        if self.state.files[self.state.current_index]["status"] == EntryStatus.UNREAD:
+            self.state.files[self.state.current_index]["status"] = EntryStatus.READ
+        self.sidebar.initialize_items()
+
         self.page_title_ref.current.value = self.state.files[self.state.current_index]["name"]
         self.title_field.value = data[0]
         self.artist_field.value = data[1]
