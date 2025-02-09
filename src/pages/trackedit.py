@@ -33,7 +33,7 @@ class TrackEditPage(Container):
     def __init__(self, state: State):
         super().__init__()
         self.state = state
-        self.state.set_trackedit_page(self)
+        self.state.trackedit_page = self
 
         self.sidebar = Sidebar(state)
 
@@ -97,7 +97,7 @@ class TrackEditPage(Container):
             content=Text("Only saved files will keep their modifications."),
             actions=[
                 # TODO: figure out how to create a new start page without circular imports :(
-                FilledTonalButton("Yes", on_click=lambda _: print(self.state.page)),
+                FilledTonalButton("Yes", on_click=self.back_to_start),
                 TextButton("No", on_click=lambda _: self.state.page.close(self.end_dialog)),
             ],
         )
@@ -222,3 +222,7 @@ class TrackEditPage(Container):
             self.album_image.src_base64 = None
             self.album_image.src = event.files[0].path
             self.album_image.update()
+
+    def back_to_start(self, _):
+        self.state.page.close(self.end_dialog)
+        self.state.page.go("/start")

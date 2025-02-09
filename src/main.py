@@ -1,10 +1,13 @@
 import flet
 from flet import (
     Page,
+    TemplateRoute,
     Theme,
+    View,
 )
 import logging
 from pages.start import StartPage
+from pages.trackedit import TrackEditPage
 from util.state import State
 
 def main(page: Page):
@@ -16,7 +19,25 @@ def main(page: Page):
 
     state = State(page)
     page.on_resized = state.on_resized
-    page.add(StartPage(state))
+    page.on_route_change = lambda _: on_route_change(page, state)
+
+    # initialize the default route
+    state.page.views.append(View("/start", [StartPage(state)]))
+
+    page.go("/start")
+
+def on_route_change(page: Page, state: State):
+    route = TemplateRoute(page.route)
+    if route.match("/start"):
+        page.views.clear()
+        page.views.append(View("/start", [StartPage(state)]))
+        state.clear()
+        page.go("/start")
+    elif route.match("/trackedit"):
+        page.views.clear()
+        page.views.append(View("/trackedit", [TrackEditPage(state)]))
+        page.go("/trackedit")
+    page.update()
 
 # enable logging
 logging.basicConfig(level=logging.INFO)

@@ -18,7 +18,6 @@ from flet import (
 from controls.filepicker import FilePickerControl
 from controls.keyfield import KeyFieldControl
 from controls.tagchips import TagChipsControl
-from pages.trackedit import TrackEditPage
 from util.state import State
 
 class StartPage(Container):
@@ -122,8 +121,7 @@ class StartPage(Container):
             return
 
         # all good, move on to editing
-        self.state.page.controls = [TrackEditPage(self.state)]
-        self.state.page.update()
+        self.state.page.go("/trackedit")
            
     def error_check_filename(self) -> bool:
         # if filename is blank, filenames will be left alone
