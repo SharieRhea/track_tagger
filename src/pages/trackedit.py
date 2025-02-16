@@ -120,7 +120,7 @@ class TrackEditPage(Container):
             self.album_field.value,
             self.album_artist_field.value,
             self.album_image,
-            self.tags.tags
+            [tag for (tag, selected) in self.tags.tags if selected]
         )
         metadata.write_metadata(self.state.files[self.state.current_index]["path"], data)        
         # set the current file to "saved" status
@@ -197,14 +197,13 @@ class TrackEditPage(Container):
             album_image_url = info["track"]["album"]["image"][-1]["#text"]
             if album_image_url != "":
                 self.album_image.src = album_image_url
-                print("setting .src_base64 to None")
                 self.album_image.src_base64 = None
 
         # populate any tags
         tags_to_add = []
         for tag in info["track"]["toptags"]["tag"]:
             tags_to_add.append(tag["name"])
-        self.tags.update_tags(tags_to_add)
+        self.tags.update_tags(tags_to_add, lastfm=True)
 
         # update the page to show all changes
         if self.content is not None:

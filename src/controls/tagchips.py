@@ -11,9 +11,6 @@ from flet import (
 
 from util.state import State
 
-# TODO: add functionality for visible but not applied tags
-# would be used for tags found from lastfm but NOT in the auto accept list, user must click to enable them
-
 class TagChipsControl():
     def __init__(self, state: State, key: str, header_text: str):
         self.state = state
@@ -39,9 +36,9 @@ class TagChipsControl():
         if stored_tags is None:
             self.tags = []
         else:
-            self.tags = stored_tags
-            for tag in self.tags:
-                self.chips_row_ref.current.controls.append(Chip(label=Text(tag), on_delete=self.on_delete))
+            self.tags = [(tag, True) for tag in stored_tags]
+            for (tag, selected) in self.tags:
+                self.chips_row_ref.current.controls.append(Chip(label=Text(tag), selected=selected, on_select=self.on_select, on_delete=self.on_delete))
 
     # TODO: these methods could be cleaned up and organized better
 
@@ -49,21 +46,32 @@ class TagChipsControl():
         # reset all chips
         self.chips_row_ref.current.controls = []
         # add a chip back in for each tag
-        for tag in self.tags:
-            self.chips_row_ref.current.controls.append(Chip(label=Text(tag), on_delete=self.on_delete))
+        for (tag, selected) in self.tags:
+            self.chips_row_ref.current.controls.append(Chip(label=Text(tag), selected=selected, on_select=self.on_select, on_delete=self.on_delete))
         self.content.update()
 
-    def update_tags(self, tags):
+    def update_tags(self, tags, lastfm=False):
         self.tags = []
         self.chips_row_ref.current.controls = []
         for tag in tags:
             if tag != "":
-                self.tags.append(tag)
-                self.chips_row_ref.current.controls.append(Chip(label=Text(tag), on_delete=self.on_delete))
+                selected = True
+                # if tags are coming from last.fm, only auto select if part of the auto accept group
+                if lastfm:
+                    selected = tag in self.state.auto_accept_tags
+                self.tags.append((tag, selected))
+                self.chips_row_ref.current.controls.append(Chip(label=Text(tag), selected=selected, on_select=self.on_select, on_delete=self.on_delete))
 
     def on_delete(self, event):
-        self.tags.remove(event.control.label.value)
+        self.tags.remove((event.control.label.value, event.control.selected))
         self.update_chips()
+
+    def on_select(self, event):
+        # find the element in the list for this tag and flip its selected value
+        match = next(item for item in self.tags if item[0] is event.control.label.value)
+        self.tags[self.tags.index(match)] = (match[0], not match[1])
+        # NOTE: flet automatically changes the selected value for the actual chip control
+        self.state.page.update()
 
     def on_click_add(self, _):
         # do not allow empty tags
@@ -83,12 +91,13 @@ class TagChipsControl():
 
         # new tag is valid
         self.new_tag_ref.current.error_text = None
-        self.tags.append(self.new_tag_ref.current.value)
+        self.tags.append((self.new_tag_ref.current.value, True))
         self.new_tag_ref.current.value = ""
         self.update_chips()
         # set focus back on the field to enter another tag
         self.new_tag_ref.current.focus()
 
     def save_info(self):
-        self.state.page.client_storage.set(self.key, self.tags)
-        self.state.auto_accept_tags = self.tags
+        self.state.page.client_storage.set(self.key, [tag for (tag, _) in self.tags])
+        if self.key == "auto_accept_tags":
+            self.state.auto_accept_tags = self.state.page.client_storage.get("auto_accept_tags")
