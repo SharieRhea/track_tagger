@@ -96,7 +96,6 @@ class TrackEditPage(Container):
             title=Text("Do you wish to go back to the start page?"),
             content=Text("Only saved files will keep their modifications."),
             actions=[
-                # TODO: figure out how to create a new start page without circular imports :(
                 FilledTonalButton("Yes", on_click=self.back_to_start),
                 TextButton("No", on_click=lambda _: self.state.page.close(self.end_dialog)),
             ],
@@ -151,7 +150,7 @@ class TrackEditPage(Container):
         self.artist_field.value = data[1]
         self.album_field.value = data[2]
         self.album_artist_field.value = data[3]
-        if data[4] is None:
+        if data[4] is not None:
             self.album_image.src_base64 = data[4]
         else:
             self.album_image.src = "generic_album_cover.jpg"
@@ -198,6 +197,7 @@ class TrackEditPage(Container):
             album_image_url = info["track"]["album"]["image"][-1]["#text"]
             if album_image_url != "":
                 self.album_image.src = album_image_url
+                print("setting .src_base64 to None")
                 self.album_image.src_base64 = None
 
         # populate any tags

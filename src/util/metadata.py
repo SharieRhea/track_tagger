@@ -33,16 +33,20 @@ def write_metadata(filepath: str, data: tuple):
     file["album"] = data[2]
     file["albumartist"] = data[3] 
 
+    # load the generic album cover by default, in case somehow there is no album cover data at all
     image_bytes = open("src/assets/generic_album_cover.jpg", "rb").read()
 
-    if data[4].src_base64 is not None:
-        file["artwork"] = BytesIO(base64.b64decode(data[4].src_base64)).read()
-    elif "http" in data[4].src:
-        result = query.get_album_image(data[4].src)
-        if result is not None:
-            image_bytes = result
-    elif "generic_album_cover.jpg" not in data[4].src:
-        image_bytes = open(data[4].src, "rb").read()
+    if data[4].src_base64 is not "":
+        image_bytes = base64.b64decode(data[4].src_base64)
+    elif data[4].src is not "":
+        if "http" in data[4].src:
+            # this is an image url from last.fm, query to download the actual bytes in order to write
+            result = query.get_album_image(data[4].src)
+            if result is not None:
+                image_bytes = result
+        elif "generic_album_cover.jpg" not in data[4].src:
+            # this is a file that the user has locally
+            image_bytes = open(data[4].src, "rb").read()
 
     file["artwork"] = BytesIO(image_bytes).read()
 
