@@ -140,4 +140,6 @@ class StartPage(Container):
         self.filename_field_ref.current.error_text = None
         if self.content is not None:
             self.content.update()
+
+        self.state.filename_format = self.filename_field_ref.current.value
         return False

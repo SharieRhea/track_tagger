@@ -1,3 +1,4 @@
+import os
 from flet import (
     AlertDialog,
     Column,
@@ -123,6 +124,19 @@ class TrackEditPage(Container):
             [tag for (tag, selected) in self.tags.tags if selected]
         )
         metadata.write_metadata(self.state.files[self.state.current_index]["path"], data)        
+
+        # FIX: filename is not being updated in the sidebar and file cannot be found if trying to navigate back to it 
+        if self.state.filename_format is not None and self.state.filename_format is not "":
+            # FIX: this will probably break on windows because of the slash direction
+            parent_directory = os.path.dirname(self.state.files[self.state.current_index]["path"]) + "/"
+            new_filename = metadata.format_filename(self.state.filename_format, data[0], data[1], data[2], data[3])
+            os.rename(
+                self.state.files[self.state.current_index]["path"], 
+                parent_directory + new_filename + ".mp3"
+            )
+            # update the path in the files list in case of future access
+            self.state.files[self.state.current_index]["path"] = new_filename
+
         # set the current file to "saved" status
         self.state.files[self.state.current_index]["status"] = EntryStatus.SAVED
         

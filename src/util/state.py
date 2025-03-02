@@ -10,6 +10,8 @@ class State:
         self.lastfm_key: str | None = self.page.client_storage.get("lastfm_key")
         self.auto_accept_tags = self.page.client_storage.get("auto_accept_tags")
 
+        self.filename_format: str | None = None
+
         self.files: List[dict[str, Any]] = []
 
         self.current_index = 0

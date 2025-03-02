@@ -13,13 +13,14 @@ def read_metadata(filepath: str) -> tuple:
     album = str(file["album"])
     album_artist = str(file["albumartist"])
     album_art = file["artwork"]
-    assert isinstance(album_art, music_tag.MetadataItem)
 
-    if album_art.first is not None:
+    if isinstance(album_art, music_tag.MetadataItem) and album_art.first is not None:
         album_art_bytes = album_art.first.data
         # encode into base64 then get the base64 string for displaying with flet image
         base64_bytes = base64.b64encode(album_art_bytes)
         album_art = base64_bytes.decode("ascii")
+    else:
+        album_art = None
 
     tags = str(file["genre"]).split(", ")
 
@@ -36,7 +37,7 @@ def write_metadata(filepath: str, data: tuple):
     # load the generic album cover by default, in case somehow there is no album cover data at all
     image_bytes = open("src/assets/generic_album_cover.jpg", "rb").read()
 
-    if data[4].src_base64 is not "":
+    if data[4].src_base64 is not None and data[4].src_base64 is not "":
         image_bytes = base64.b64decode(data[4].src_base64)
     elif data[4].src is not "":
         if "http" in data[4].src:
@@ -52,3 +53,15 @@ def write_metadata(filepath: str, data: tuple):
 
     file["genre"] = ", ".join(data[5]).lower()
     file.save()
+
+def format_filename(format: str, title: str | None, artist: str | None, album_title: str | None, album_artist: str | None):
+    if album_title is not None:
+        format = format.replace("%at", album_title)
+    if album_artist is not None:
+        format = format.replace("%aa", album_artist)
+    if title is not None:
+        format = format.replace("%t", title)
+    if artist is not None:
+        format = format.replace("%a", artist)
+
+    return format

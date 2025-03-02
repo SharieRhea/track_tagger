@@ -1,9 +1,10 @@
 # ignore python environment related specifics
 venv
 __pycache__
-
-# ignore user specific environment variables such as API key
-.env
+# ignore build artifacts
+build/
+dist/
+track_tagger.spec
 
 # ignore storage created by flet
 storage
