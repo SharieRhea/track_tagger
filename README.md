@@ -1,6 +1,6 @@
 # track_tagger
 
-track_tagger is a GUI program built with [flet](https://github.com/flet-dev/flet) for editing metadata in mp3 files. Title, artist, album title, album artist, album cover, and genre are modified. The user may optionally provide a [last.fm](https://www.last.fm) API key to search for track information.
+track_tagger is a terminal user interface (TUI) program built with [textual](https://textual.textualize.io/) for editing metadata in mp3 files. Title, artist, album title, album artist, album cover, and genre are modified. The user may optionally provide a [last.fm](https://www.last.fm) API key to search for track information.
 
 Please note that track_tagger follows the last.fm convention of using "tags" to describe the genre of a song. A song may have multiple tags, and are they are placed in the genre section of an mp3's metadata as a comma-separated list.
 
@@ -33,14 +33,20 @@ To add track_tagger to your list of applications on Ubuntu distributions:
 #### Dependencies
 
 * [python3](https://www.python.org/downloads/)
+* [textual](https://pypi.org/project/textual/)
+* [music-tag](https://pypi.org/project/music-tag/)
+* [requests](https://pypi.org/project/requests/)
 
 #### Steps
 
 1. Clone the repository
 2. Create virtual environment: `python3 -m venv .venv`
 3. Activate the venv: `source .venv/bin/activate`
-4. Install flet: `pip install flet`
-5. Run the app: `flet run`
+4. Install pip dependencies: 
+    1. `pip install textual`
+    2. `pip install music-tag`
+    3. `pip install requests`
+5. Run the app: `textual run main.py`
 
 ## Development
 

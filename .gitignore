@@ -4,7 +4,3 @@ __pycache__
 # ignore build artifacts
 build/
 dist/
-track_tagger.spec
-
-# ignore storage created by flet
-storage
