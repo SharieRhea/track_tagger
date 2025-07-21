@@ -4,6 +4,8 @@ import base64
 
 from util import query
 
+
+# TODO: music-tag supports the following formats, add them: aac, aiff, dsf, flac, m4a, mp3, ogg, opus, wav, wv
 def read_metadata(filepath: str) -> tuple:
     file = music_tag.load_file(filepath)
     assert isinstance(file, music_tag.id3.Mp3File)
@@ -23,8 +25,8 @@ def read_metadata(filepath: str) -> tuple:
         album_art = None
 
     tags = str(file["genre"]).split(", ")
-
     return (title, artist, album, album_artist, album_art, tags)
+
 
 def write_metadata(filepath: str, data: tuple):
     file = music_tag.load_file(filepath)
@@ -32,7 +34,7 @@ def write_metadata(filepath: str, data: tuple):
     file["title"] = data[0]
     file["artist"] = data[1]
     file["album"] = data[2]
-    file["albumartist"] = data[3] 
+    file["albumartist"] = data[3]
 
     # load the generic album cover by default, in case somehow there is no album cover data at all
     image_bytes = open("src/assets/generic_album_cover.jpg", "rb").read()
@@ -54,7 +56,14 @@ def write_metadata(filepath: str, data: tuple):
     file["genre"] = ", ".join(data[5]).lower()
     file.save()
 
-def format_filename(format: str, title: str | None, artist: str | None, album_title: str | None, album_artist: str | None):
+
+def format_filename(
+    format: str,
+    title: str | None,
+    artist: str | None,
+    album_title: str | None,
+    album_artist: str | None,
+):
     if album_title is not None:
         format = format.replace("%at", album_title)
     if album_artist is not None:

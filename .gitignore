@@ -4,3 +4,5 @@ __pycache__
 # ignore build artifacts
 build/
 dist/
+# ignore user configuration settings (contains api key)
+config.yaml

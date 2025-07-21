@@ -3,19 +3,21 @@ import logging
 
 ENDPOINT = "https://ws.audioscrobbler.com/2.0/"
 
+
 def albumn_search(key, album) -> dict | None:
     parameters = {
         "method": "album.search",
         "api_key": key,
         "album": album,
-        "format": "json"
+        "format": "json",
     }
-    info = requests.get(ENDPOINT, params = parameters)
+    info = requests.get(ENDPOINT, params=parameters)
     if info.status_code != 200:
         return None
 
     logging.info(info.json())
     return info.json()
+
 
 def track_getinfo(key, title, artist) -> dict | None:
     parameters = {
@@ -23,13 +25,14 @@ def track_getinfo(key, title, artist) -> dict | None:
         "api_key": key,
         "track": title,
         "artist": artist,
-        "format": "json"
+        "format": "json",
     }
-    info = requests.get(ENDPOINT, params = parameters)
+    info = requests.get(ENDPOINT, params=parameters)
     if info.status_code != 200:
         return None
     logging.info(info.json())
     return info.json()
+
 
 def get_album_image(url) -> bytes | None:
     info = requests.get(url)
