@@ -44,7 +44,7 @@ class HomePage(Screen):
         yield self.filename_format
         yield self.tag_entry
         yield self.tags_list
-        yield Button("continue", variant="primary")
+        yield Button("continue", variant="primary", flat=True)
 
     @on(Button.Pressed)
     def on_button_pressed(self, _: Button.Pressed) -> None:
@@ -59,7 +59,8 @@ class HomePage(Screen):
                 tags=self.tags_list.selected,
             )
         )
-        self.app.install_screen(EditPage(), "edit")
+        # TODO: hard coded file for debugging
+        self.app.install_screen(EditPage("/home/sharie/Music/personal/Old Music/Bad Liar - Imagine Dragons.mp3"), "edit")
         self.app.push_screen("edit")
 
     def load_config(self) -> None:

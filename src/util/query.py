@@ -31,6 +31,10 @@ def track_getinfo(key, title, artist) -> dict | None:
     if info.status_code != 200:
         return None
     logging.info(info.json())
+    data = info.json()
+
+    # TODO: validate and turn into tuple
+
     return info.json()
 
 

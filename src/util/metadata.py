@@ -1,4 +1,5 @@
 from io import BytesIO
+from PIL import Image
 import music_tag
 import base64
 
@@ -18,9 +19,7 @@ def read_metadata(filepath: str) -> tuple:
 
     if isinstance(album_art, music_tag.MetadataItem) and album_art.first is not None:
         album_art_bytes = album_art.first.data
-        # encode into base64 then get the base64 string for displaying with flet image
-        base64_bytes = base64.b64encode(album_art_bytes)
-        album_art = base64_bytes.decode("ascii")
+        album_art = Image.open(BytesIO(album_art_bytes))
     else:
         album_art = None
 
@@ -39,9 +38,9 @@ def write_metadata(filepath: str, data: tuple):
     # load the generic album cover by default, in case somehow there is no album cover data at all
     image_bytes = open("src/assets/generic_album_cover.jpg", "rb").read()
 
-    if data[4].src_base64 is not None and data[4].src_base64 is not "":
+    if data[4].src_base64 is not None and data[4].src_base64 != "":
         image_bytes = base64.b64decode(data[4].src_base64)
-    elif data[4].src is not "":
+    elif data[4].src != "":
         if "http" in data[4].src:
             # this is an image url from last.fm, query to download the actual bytes in order to write
             result = query.get_album_image(data[4].src)

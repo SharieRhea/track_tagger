@@ -2,7 +2,7 @@ from typing import List
 from pydantic import BaseModel, ValidationError
 import yaml
 
-CONFIG_PATH = "config.yaml"
+CONFIG_PATH = "src/config.yaml"
 
 
 class Config(BaseModel):

@@ -1,3 +1,7 @@
 .round-border {
 	border: $border round
 }
+
+Vertical {
+	width: 50%;
+}
