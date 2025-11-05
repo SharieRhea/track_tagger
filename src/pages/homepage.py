@@ -4,7 +4,7 @@ from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import Button, Input, Markdown, SelectionList
 
-from pages.editpage import EditPage
+from pages.fileselectpage import FileSelectPage
 from util.config import Config, load_config, save_config
 from util.query import track_getinfo
 
@@ -60,8 +60,8 @@ class HomePage(Screen):
             )
         )
         # TODO: hard coded file for debugging
-        self.app.install_screen(EditPage("/home/sharie/Music/personal/Old Music/Bad Liar - Imagine Dragons.mp3"), "edit")
-        self.app.push_screen("edit")
+        self.app.install_screen(FileSelectPage(), "fileselect")
+        self.app.push_screen("fileselect")
 
     def load_config(self) -> None:
         config = load_config()

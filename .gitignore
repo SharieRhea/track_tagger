@@ -1,8 +1,11 @@
-# ignore python environment related specifics
+# python environment related specifics
 venv
 __pycache__
-# ignore build artifacts
+# build artifacts
 build/
 dist/
-# ignore user configuration settings (contains api key)
+# user configuration settings (contains api key)
 config.yaml
+# possible song directories
+songs/
+music/
