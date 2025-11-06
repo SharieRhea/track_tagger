@@ -1,3 +1,4 @@
+from pathlib import Path
 from PIL import Image
 from textual.app import ComposeResult
 from rich_pixels import Pixels
@@ -15,10 +16,10 @@ class EditPage(Screen):
 
     BINDINGS = [Binding("ctrl-s", "save", "save"), Binding("ctrl-n", "next", "next")]
 
-    def __init__(self, filepath: str):
+    def __init__(self, filepath: Path):
         super().__init__()
         self.filepath = filepath
-        self.data = read_metadata(filepath)
+        self.data = read_metadata(str(filepath))
         self.config = load_config()
         if self.config.lastfm_api_key != "":
             self.BINDINGS.append(Binding("ctrl-l", "look up", "look_up"))

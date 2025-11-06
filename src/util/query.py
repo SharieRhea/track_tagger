@@ -4,7 +4,7 @@ import logging
 ENDPOINT = "https://ws.audioscrobbler.com/2.0/"
 
 
-def albumn_search(key, album) -> dict | None:
+def album_search(key, album) -> dict | None:
     parameters = {
         "method": "album.search",
         "api_key": key,

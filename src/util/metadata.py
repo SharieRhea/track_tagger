@@ -63,6 +63,7 @@ def format_filename(
     album_title: str | None,
     album_artist: str | None,
 ):
+    # TODO: have an option for no spaces (probably replace with '_')
     if album_title is not None:
         format = format.replace("%at", album_title)
     if album_artist is not None:
