@@ -18,12 +18,13 @@ class FileSelectPage(Screen):
 
     def compose(self) -> ComposeResult:
         self.filetree = DirectoryTree(".")
+        # stop "enter" from expanding/collapsing dirs
+        self.filetree.auto_expand = False
         self.selected_files: List[Path] = []
         yield self.filetree
         yield Button("continue")
 
-    # FIX: there is some weird behavior were selecting a dir or file sometimes takes two clicks
-    # also, need to create subclass of DirectoryTree so that enter does not expand/collapse dirs, only select them
+    # FIX: weird behavior with selecting a dir, sometimes takes two key presses
     @on(DirectoryTree.DirectorySelected)
     def on_directorytree_directoryselected(self, event: DirectoryTree.DirectorySelected) -> None:
         # NOTE: i am choosing to not traverse subdirectories here
@@ -60,7 +61,6 @@ class FileSelectPage(Screen):
                 dir_node.set_label(dir_label)
         else:
             self.selected_files.append(fileselected.path)
-            print(self.app.theme_variables)
             styled_label = Text(str(fileselected.node.label), Style(bgcolor=self.app.theme_variables["primary-background"]))
         fileselected.node.set_label(styled_label)
 
