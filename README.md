@@ -6,23 +6,44 @@ Please note that track_tagger follows the last.fm convention of using "tags" to 
 
 ## Installation
 
+### From Source
+
 #### Dependencies
 
 * [python3](https://www.python.org/downloads/)
-* [textual](https://pypi.org/project/textual/)
-* [music-tag](https://pypi.org/project/music-tag/)
-* [requests](https://pypi.org/project/requests/)
+* [textual](https://pypi.org/project/textual/) for the TUI
+* [music-tag](https://pypi.org/project/music-tag/) for reading/writing metadata
+* [requests](https://pypi.org/project/requests/) for using the last.fm API
+* [rich-pixels](https://github.com/darrenburns/rich-pixels) for displaying album art
+* [pyyaml](https://pypi.org/project/PyYAML/) for parsing configuration files
 
 #### Steps
 
 1. Clone the repository
-2. Create virtual environment: `python3 -m venv .venv`
-3. Activate the venv: `source .venv/bin/activate`
+2. Create a virtual environment (optional): `python3 -m venv .venv`
+3. Activate the venv (optional): `source .venv/bin/activate`
 4. Install pip dependencies: 
     1. `pip install textual`
     2. `pip install music-tag`
     3. `pip install requests`
-5. Run the app: `textual run main.py`
+    4. `pip install rich-pixels`
+    5. `pip install pyyaml`
+5. Run the app: `python src/main.py`
+
+#### Developers
+
+For development, the `textual-dev` package may be useful. Install with `pip install textual-dev`.
+
+* Use `textual console` to start the console. **Exclude** logging messages with `-x {NAME}`. The options are:
+    * EVENT
+    * DEBUG
+    * INFO
+    * WARNING
+    * ERROR
+    * PRINT
+    * SYSTEM
+    * LOGGING
+* Run the app in development mode using `textual run main.py -dev`. This will connect to a running console and also **apply live edits from CSS files**.
 
 ## Development
 
@@ -40,6 +61,7 @@ track_tagger is under development, *please* submit issues for any bugs you find 
 - [x] persistent settings (API key, file name format, locked tags)
 - [ ] list of session files next to edit page
 - [ ] add logging!
+- [ ] add tests!
 
 2. Features
 
@@ -48,3 +70,4 @@ track_tagger is under development, *please* submit issues for any bugs you find 
 - [ ] ability to toggle tag behavior
     - default: selecting a tag (provided by last.fm) saves for the current session only
     - persistent: selecting a tag (provided by last.fm) saves in persistent configuration
+- [ ] support for other sites (discogs)
