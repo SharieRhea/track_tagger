@@ -1,15 +1,18 @@
 from typing import List
 from textual import on
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.screen import Screen
-from textual.widgets import Button, Input, SelectionList
+from textual.widgets import Button, Footer, Input, SelectionList
 
 from pages.fileselectpage import FileSelectPage
 from util.config import Config, load_config, save_config
 from util.query import track_getinfo
 
 
-class HomePage(Screen):
+class SettingsPage(Screen):
+
+    BINDINGS = [Binding("escape", "exit_settings", "exit settings")]
 
     def compose(self) -> ComposeResult:
         self.lastfm_api_key: Input = Input(
@@ -45,6 +48,7 @@ class HomePage(Screen):
         yield self.tag_entry
         yield self.tags_list
         yield Button("continue", variant="primary", flat=True)
+        yield Footer()
 
     @on(Input.Submitted)
     def on_input_submitted(self, event: Input.Submitted) -> None:
@@ -88,7 +92,7 @@ class HomePage(Screen):
         self.app.push_screen("fileselect")
 
     def load_config(self) -> None:
-        config = load_config()
+        config = load_config(self.app)
         if config.lastfm_api_key != "":
             self.lastfm_api_key.value = config.lastfm_api_key
         if config.filename_format != "":
@@ -120,3 +124,6 @@ class HomePage(Screen):
             )
             return False
         return True
+
+    def action_exit_settings(self) -> None:
+        self.app.pop_screen()

@@ -1,9 +1,16 @@
+import logging
 from typing import List
 from pydantic import BaseModel, ValidationError
+from textual.app import App
+from textual.logging import TextualHandler
 import yaml
 
 CONFIG_PATH = "src/config.yaml"
 
+logging.basicConfig(
+    level="NOTSET",
+    handlers=[TextualHandler()],
+)
 
 class Config(BaseModel):
     lastfm_api_key: str
@@ -18,7 +25,7 @@ def save_config(config: Config) -> None:
         yaml.safe_dump(config.model_dump(), file)
 
 
-def load_config() -> Config:
+def load_config(app: App) -> Config:
     # use try so we can catch if the file does not exist
     try:
         with open(CONFIG_PATH, "r") as file:
@@ -30,6 +37,10 @@ def load_config() -> Config:
         save_config(config)
         return config
     except ValidationError as validation_error:
-        # TODO: i would like to have a toast message that warns the user about this
-        # use the default config but do NOT overwrite the existing one
+        app.notify(
+                "Your config.yaml is not formatted correctly! Using a default config instead.",
+                severity="error",
+            )
+        logging.error("Malformed config.yaml:", validation_error)
+        # return a default blank config and do not overwrite the existing config.yaml
         return Config(lastfm_api_key="", filename_format="", tags=[])

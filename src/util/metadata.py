@@ -1,4 +1,5 @@
 from io import BytesIO
+from pathlib import Path
 from PIL import Image
 import music_tag
 import base64
@@ -7,7 +8,7 @@ from util import query
 
 
 # TODO: music-tag supports the following formats, add them: aac, aiff, dsf, flac, m4a, mp3, ogg, opus, wav, wv
-def read_metadata(filepath: str) -> tuple:
+def read_metadata(filepath: Path) -> tuple:
     file = music_tag.load_file(filepath)
     assert isinstance(file, music_tag.id3.Mp3File)
 
@@ -27,7 +28,7 @@ def read_metadata(filepath: str) -> tuple:
     return (title, artist, album, album_artist, album_art, tags)
 
 
-def write_metadata(filepath: str, data: tuple):
+def write_metadata(filepath: Path, data: tuple):
     file = music_tag.load_file(filepath)
     assert isinstance(file, music_tag.id3.Mp3File)
     file["title"] = data[0]
