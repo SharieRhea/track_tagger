@@ -1,10 +1,18 @@
 from io import BytesIO
+import logging
 from pathlib import Path
 from PIL import Image
 import music_tag
 import base64
 
+from textual.logging import TextualHandler
+
 from util import query
+
+logging.basicConfig(
+    level="NOTSET",
+    handlers=[TextualHandler()],
+)
 
 
 # TODO: music-tag supports the following formats, add them: aac, aiff, dsf, flac, m4a, mp3, ogg, opus, wav, wv
@@ -28,33 +36,38 @@ def read_metadata(filepath: Path) -> tuple:
     return (title, artist, album, album_artist, album_art, tags)
 
 
-def write_metadata(filepath: Path, data: tuple):
-    file = music_tag.load_file(filepath)
-    assert isinstance(file, music_tag.id3.Mp3File)
-    file["title"] = data[0]
-    file["artist"] = data[1]
-    file["album"] = data[2]
-    file["albumartist"] = data[3]
+def write_metadata(filepath: Path, data: tuple) -> bool:
+    try:
+        file = music_tag.load_file(filepath)
+        assert isinstance(file, music_tag.id3.Mp3File)
+        file["title"] = data[0]
+        file["artist"] = data[1]
+        file["album"] = data[2]
+        file["albumartist"] = data[3]
 
-    # load the generic album cover by default, in case somehow there is no album cover data at all
-    image_bytes = open("src/assets/generic_album_cover.jpg", "rb").read()
+        # load the generic album cover by default, in case somehow there is no album cover data at all
+        image_bytes = open("src/assets/generic_album_cover.jpg", "rb").read()
 
-    if data[4].src_base64 is not None and data[4].src_base64 != "":
-        image_bytes = base64.b64decode(data[4].src_base64)
-    elif data[4].src != "":
-        if "http" in data[4].src:
-            # this is an image url from last.fm, query to download the actual bytes in order to write
-            result = query.get_album_image(data[4].src)
-            if result is not None:
-                image_bytes = result
-        elif "generic_album_cover.jpg" not in data[4].src:
-            # this is a file that the user has locally
-            image_bytes = open(data[4].src, "rb").read()
+        if data[4].src_base64 is not None and data[4].src_base64 != "":
+            image_bytes = base64.b64decode(data[4].src_base64)
+        elif data[4].src != "":
+            if "http" in data[4].src:
+                # this is an image url from last.fm, query to download the actual bytes in order to write
+                result = query.get_album_image(data[4].src)
+                if result is not None:
+                    image_bytes = result
+            elif "generic_album_cover.jpg" not in data[4].src:
+                # this is a file that the user has locally
+                image_bytes = open(data[4].src, "rb").read()
 
-    file["artwork"] = BytesIO(image_bytes).read()
+        file["artwork"] = BytesIO(image_bytes).read()
 
-    file["genre"] = ", ".join(data[5]).lower()
-    file.save()
+        file["genre"] = ", ".join(data[5]).lower()
+        file.save()
+        return True
+    except Exception as exception:
+        logging.error("Error writing out file info: %s", exception)
+        return False
 
 
 def format_filename(

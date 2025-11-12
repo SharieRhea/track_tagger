@@ -6,7 +6,7 @@ from rich_pixels import Pixels
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
-from textual.widgets import Footer, Input, Static
+from textual.widgets import Footer, Input, Label, Static
 from textual.logging import TextualHandler
 
 from util.config import load_config
@@ -34,6 +34,7 @@ class EditPage(Screen):
         self.config = load_config(self.app)
 
     def compose(self) -> ComposeResult:
+        self.filename: Label = Label(id="filename", classes="round-border")
         self.title_input: Input = Input(
             placeholder="title", id="title", classes="round-border"
         )
@@ -57,6 +58,7 @@ class EditPage(Screen):
 
         with Horizontal():
             with Vertical():
+                yield self.filename
                 yield self.title_input
                 yield self.artist_input
                 yield self.album_title_input
@@ -76,6 +78,7 @@ class EditPage(Screen):
         return data
 
     def push_data(self) -> None:
+        self.filename.update(self.files[self.file_index].name)
         data = read_metadata(self.files[self.file_index])
 
         self.title_input.value = data[0]
@@ -87,10 +90,18 @@ class EditPage(Screen):
         image = Pixels.from_image(data[4].resize((60, 60)))
         self.album_art.update(image)
 
-    def action_save(self) -> None:
-        write_metadata(self.files[self.file_index], self.pull_data())
+    def action_write_out(self) -> None:
+        if write_metadata(self.files[self.file_index], self.pull_data()):
+            self.app.notify(
+                "File saved successfully!",
+                severity="information",
+            )
+        else:
+            self.app.notify(
+                "Unable to save file!",
+                severity="error",
+            )
         # TODO: rename file, maybe should go in metadata utils?
-        pass
 
     def action_next(self) -> None:
         self.file_index += 1
