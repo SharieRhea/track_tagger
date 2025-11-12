@@ -6,6 +6,12 @@ Please note that track_tagger follows the last.fm convention of using "tags" to 
 
 ## Installation
 
+### A Note on Fonts
+
+track_tagger is a TUI program, which means that all UI is rendered in the the terminal. This means you will need a terminal emulator with a *monospaced* font. Additionally, the textual library uses Unicode emojis for certain icons (directories and files). If your chosen font does not have Unicode glyphs (and many nerd fonts do not!), ensure you have a fallback font.
+
+Personally, I use [JetBrainsMonoNL Mono](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip) and [Noto Color Emoji](https://fonts.google.com/noto/specimen/Noto+Color+Emoji).
+
 ### From Source
 
 #### Dependencies
@@ -13,7 +19,7 @@ Please note that track_tagger follows the last.fm convention of using "tags" to 
 * [python3](https://www.python.org/downloads/)
 * [textual](https://pypi.org/project/textual/) for the TUI
 * [music-tag](https://pypi.org/project/music-tag/) for reading/writing metadata
-* [requests](https://pypi.org/project/requests/) for using the last.fm API
+* [requests](https://pypi.org/project/requests/) for querying the last.fm API
 * [rich-pixels](https://github.com/darrenburns/rich-pixels) for displaying album art
 * [pyyaml](https://pypi.org/project/PyYAML/) for parsing configuration files
 
@@ -53,7 +59,7 @@ track_tagger is under development, *please* submit issues for any bugs you find 
 
 1. Basic Functionality
 
-- [ ] select a directory or file(s)
+- [x] select a directory or file(s)
 - [x] read existing metadata from a file
 - [ ] write new metadata to a file
     - [ ] handling multiple image sources (last.fm, local file)
