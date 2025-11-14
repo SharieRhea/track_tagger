@@ -2,6 +2,7 @@ from io import BytesIO
 import logging
 from pathlib import Path
 from PIL import Image
+from PIL.PngImagePlugin import PngImageFile
 import music_tag
 import base64
 
@@ -48,7 +49,12 @@ def write_metadata(filepath: Path, data: tuple) -> bool:
         # load the generic album cover by default, in case somehow there is no album cover data at all
         image_bytes = open("src/assets/generic_album_cover.jpg", "rb").read()
 
-        if data[4].src_base64 is not None and data[4].src_base64 != "":
+        if isinstance(data[4], PngImageFile):
+            bytes_io = BytesIO()
+            data[4].save(bytes_io, format="PNG")
+            bytes_io.seek(0)
+            image_bytes = bytes_io.read()
+        elif data[4].src_base64 is not None and data[4].src_base64 != "":
             image_bytes = base64.b64decode(data[4].src_base64)
         elif data[4].src != "":
             if "http" in data[4].src:

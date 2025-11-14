@@ -6,7 +6,8 @@ from rich_pixels import Pixels
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
-from textual.widgets import Footer, Input, Label, Static
+from textual.widgets import Footer, Input, Label, SelectionList, Static
+from textual.widgets.selection_list import Selection
 from textual.logging import TextualHandler
 
 from util.config import load_config
@@ -54,6 +55,7 @@ class EditPage(Screen):
             classes="round-border",
         )
         self.album_art: Static = Static()
+        self.tags: SelectionList = SelectionList()
         self.push_data()
 
         with Horizontal():
@@ -63,6 +65,7 @@ class EditPage(Screen):
                 yield self.artist_input
                 yield self.album_title_input
                 yield self.album_artist_input
+                yield self.tags
             yield self.album_art
         yield Footer()
 
@@ -72,8 +75,8 @@ class EditPage(Screen):
             self.artist_input.value,
             self.album_title_input.value,
             self.album_artist_input.value,
-            # TODO: implement album art
-            None,
+            self.album_art_raw,
+            self.tags.selected
         )
         return data
 
@@ -86,9 +89,14 @@ class EditPage(Screen):
         self.album_title_input.value = data[2]
         self.album_artist_input.value = data[3]
 
-        # TODO: this whole file needs to have album art added
+        self.album_art_raw = data[4]
         image = Pixels.from_image(data[4].resize((60, 60)))
         self.album_art.update(image)
+
+
+        tags: List[str] = data[5]
+        for tag in tags:
+            self.tags.add_option(Selection(tag, tag, True))
 
     def action_write_out(self) -> None:
         if write_metadata(self.files[self.file_index], self.pull_data()):
