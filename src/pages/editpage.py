@@ -1,15 +1,16 @@
 import logging
 from pathlib import Path
 from typing import List
+
+from rich_pixels import Pixels
 from textual import on
 from textual.app import ComposeResult
-from rich_pixels import Pixels
 from textual.binding import Binding
 from textual.containers import Center, Horizontal, Vertical
+from textual.logging import TextualHandler
 from textual.screen import Screen
 from textual.widgets import Footer, Input, Label, SelectionList, Static
 from textual.widgets.selection_list import Selection
-from textual.logging import TextualHandler
 
 from util.config import load_config
 from util.metadata import read_metadata, write_metadata
@@ -20,13 +21,14 @@ logging.basicConfig(
     handlers=[TextualHandler()],
 )
 
+
 class EditPage(Screen):
 
     BINDINGS = [
-        Binding("ctrl+o", "write_out", "write out"), 
-        Binding("ctrl+p", "previous", "previous"), 
-        Binding("ctrl+n", "next", "next"), 
-        Binding("ctrl+s", "search", "search")
+        Binding("ctrl+o", "write_out", "write out"),
+        Binding("ctrl+p", "previous", "previous"),
+        Binding("ctrl+n", "next", "next"),
+        Binding("ctrl+s", "search", "search"),
     ]
 
     def __init__(self, files: List[Path]):
@@ -37,9 +39,7 @@ class EditPage(Screen):
 
     def compose(self) -> ComposeResult:
         self.filename: Label = Label(id="filename", classes="round-border")
-        self.title_input: Input = Input(
-            placeholder="title", id="title", classes="round-border"
-        )
+        self.title_input: Input = Input(placeholder="title", id="title", classes="round-border")
         self.title_input.border_title = "track title"
         self.artist_input: Input = Input(
             placeholder="artist",
@@ -60,14 +60,9 @@ class EditPage(Screen):
         )
         self.album_artist_input.border_title = "album artist"
         self.album_art: Static = Static(id="album-art")
-        self.tag_entry: Input = Input(
-            placeholder="tag", id="tag-entry", classes="round-border"
-        )
+        self.tag_entry: Input = Input(placeholder="tag", id="tag-entry", classes="round-border")
         self.tag_entry.border_title = "new tag"
-        self.tags_list: SelectionList = SelectionList(
-            id="tags-list",
-            classes="round-border"
-        )
+        self.tags_list: SelectionList = SelectionList(id="tags-list", classes="round-border")
         self.tags_list.border_title = "tags"
         self.push_data()
 
@@ -92,7 +87,7 @@ class EditPage(Screen):
             self.album_title_input.value,
             self.album_artist_input.value,
             self.album_art_raw,
-            self.tags_list.selected
+            self.tags_list.selected,
         )
         return data
 

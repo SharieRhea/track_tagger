@@ -1,11 +1,11 @@
-from io import BytesIO
+import base64
 import logging
+from io import BytesIO
 from pathlib import Path
+
+import music_tag
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
-import music_tag
-import base64
-
 from textual.logging import TextualHandler
 
 from util import query

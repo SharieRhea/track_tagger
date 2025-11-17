@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from typing import List
+
 from rich.style import Style
 from rich.text import Text
 from textual import on
@@ -16,7 +17,6 @@ class FileSelectPage(Screen):
 
     def __init__(self):
         super().__init__()
-        
 
     def compose(self) -> ComposeResult:
         self.filetree = DirectoryTree(".")
@@ -44,8 +44,8 @@ class FileSelectPage(Screen):
             event.node.set_label(styled_label)
         else:
             # some (or no) files have already been selected, select the remaining ones
-            for (index, node) in enumerate(file_nodes):
-                if file_paths[index] not in self.selected_files: 
+            for index, node in enumerate(file_nodes):
+                if file_paths[index] not in self.selected_files:
                     self.selected_files.append(file_paths[index])
                     styled_label = Text(str(node.label), Style(bgcolor=self.app.theme_variables["primary-background"]))
                     node.set_label(styled_label)
@@ -66,7 +66,9 @@ class FileSelectPage(Screen):
                 dir_node.set_label(dir_label)
         else:
             self.selected_files.append(fileselected.path)
-            styled_label = Text(str(fileselected.node.label), Style(bgcolor=self.app.theme_variables["primary-background"]))
+            styled_label = Text(
+                str(fileselected.node.label), Style(bgcolor=self.app.theme_variables["primary-background"])
+            )
         fileselected.node.set_label(styled_label)
 
     @on(Button.Pressed)
@@ -75,7 +77,7 @@ class FileSelectPage(Screen):
         self.app.push_screen("edit")
 
     def retrieve_full_path(self, node: TreeNode, path: str) -> str:
-        # TODO: this may need to be modified to work for windows/when the user has a configured directory  
+        # TODO: this may need to be modified to work for windows/when the user has a configured directory
 
         # prepend this node's label to what we have so far
         path = os.path.join(str(node.label), path)

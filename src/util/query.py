@@ -1,5 +1,6 @@
-import requests
 import logging
+
+import requests
 
 ENDPOINT = "https://ws.audioscrobbler.com/2.0/"
 
@@ -31,7 +32,7 @@ def track_getinfo(key, title, artist) -> dict | None:
     if info.status_code != 200:
         return None
     logging.info(info.json())
-    data = info.json()
+    _ = info.json()
 
     # TODO: validate and turn into tuple
 

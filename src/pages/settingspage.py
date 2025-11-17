@@ -1,11 +1,11 @@
 from typing import List
+
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.screen import Screen
 from textual.widgets import Button, Footer, Input, SelectionList
 
-from pages.fileselectpage import FileSelectPage
 from util.config import Config, load_config, save_config
 from util.query import track_getinfo
 
@@ -24,18 +24,16 @@ class SettingsPage(Screen):
         self.lastfm_api_key.border_title = "last.fm API key"
         self.filename_format: Input = Input(
             # TODO: format tooltip as some kind of rich table ( | %t | title | )
-            placeholder="filename format", id="filename-format", classes="round-border", tooltip="TODO"
+            placeholder="filename format",
+            id="filename-format",
+            classes="round-border",
+            tooltip="TODO",
         )
         self.filename_format.border_title = "filename format"
-        self.tag_entry: Input = Input(
-            placeholder="tag", id="tag-entry", classes="round-border"
-        )
+        self.tag_entry: Input = Input(placeholder="tag", id="tag-entry", classes="round-border")
         self.tag_entry.border_title = "new tag"
         self.tags: List[str] = []
-        self.tags_list: SelectionList = SelectionList(
-            id="tags-list",
-            classes="round-border"
-        )
+        self.tags_list: SelectionList = SelectionList(id="tags-list", classes="round-border")
         self.tags_list.tooltip = "these tags will be automatically selected if provided by last.fm"
         # TODO: come up with a better name for this
         self.tags_list.border_title = "auto-select tags"
@@ -102,9 +100,7 @@ class SettingsPage(Screen):
     def validate_filename_format(self) -> bool:
         # make sure the filename format does not have illegal characters
         illegal_characters = ["/", "\\", "*", '"', "<", ">", ":", "|", "?", "."]
-        if any(
-            character in self.filename_format.value for character in illegal_characters
-        ):
+        if any(character in self.filename_format.value for character in illegal_characters):
             self.app.notify(
                 "Hey, there is an invalid character in your filename format! Configuration not saved.",
                 severity="error",
