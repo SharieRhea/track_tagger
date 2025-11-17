@@ -1,10 +1,11 @@
 import logging
 from pathlib import Path
 from typing import List
+from textual import on
 from textual.app import ComposeResult
 from rich_pixels import Pixels
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
+from textual.containers import Center, Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import Footer, Input, Label, SelectionList, Static
 from textual.widgets.selection_list import Selection
@@ -39,34 +40,49 @@ class EditPage(Screen):
         self.title_input: Input = Input(
             placeholder="title", id="title", classes="round-border"
         )
+        self.title_input.border_title = "track title"
         self.artist_input: Input = Input(
             placeholder="artist",
             id="artist",
             classes="round-border",
         )
+        self.artist_input.border_title = "artist"
         self.album_title_input: Input = Input(
             placeholder="album title",
             id="album-title",
             classes="round-border",
         )
+        self.album_title_input.border_title = "album title"
         self.album_artist_input: Input = Input(
             placeholder="album artist",
             id="album-artist",
             classes="round-border",
         )
-        self.album_art: Static = Static()
-        self.tags: SelectionList = SelectionList()
+        self.album_artist_input.border_title = "album artist"
+        self.album_art: Static = Static(id="album-art")
+        self.tag_entry: Input = Input(
+            placeholder="tag", id="tag-entry", classes="round-border"
+        )
+        self.tag_entry.border_title = "new tag"
+        self.tags_list: SelectionList = SelectionList(
+            id="tags-list",
+            classes="round-border"
+        )
+        self.tags_list.border_title = "tags"
         self.push_data()
 
-        with Horizontal():
-            with Vertical():
+        with Horizontal(id="editpage-columns"):
+            with Vertical(id="text-fields"):
                 yield self.filename
                 yield self.title_input
                 yield self.artist_input
                 yield self.album_title_input
                 yield self.album_artist_input
-                yield self.tags
-            yield self.album_art
+                yield self.tag_entry
+                yield self.tags_list
+            with Vertical(id="art-fields"):
+                with Center():
+                    yield self.album_art
         yield Footer()
 
     def pull_data(self) -> tuple:
@@ -76,7 +92,7 @@ class EditPage(Screen):
             self.album_title_input.value,
             self.album_artist_input.value,
             self.album_art_raw,
-            self.tags.selected
+            self.tags_list.selected
         )
         return data
 
@@ -92,11 +108,26 @@ class EditPage(Screen):
         self.album_art_raw = data[4]
         image = Pixels.from_image(data[4].resize((60, 60)))
         self.album_art.update(image)
-
+        self.album_art.styles.width = 60
+        self.album_art.styles.height = 30
 
         tags: List[str] = data[5]
+        self.tags_list.clear_options()
         for tag in tags:
-            self.tags.add_option(Selection(tag, tag, True))
+            self.tags_list.add_option(Selection(tag, tag, True))
+
+    @on(Input.Submitted)
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        # make sure this tag is not already in the list
+        if event.value in [option.prompt for option in self.tags_list.options]:
+            self.app.notify(
+                "Hey, that tag is already in the list!",
+                severity="warning",
+            )
+            return
+        # TODO: possibly sanitize? (lower?)
+        self.tags_list.add_option((event.value, event.value, True))
+        self.tag_entry.clear()
 
     def action_write_out(self) -> None:
         if write_metadata(self.files[self.file_index], self.pull_data()):
@@ -125,14 +156,13 @@ class EditPage(Screen):
         self.refresh_bindings()
         data = self.pull_data()
         # TODO: error handle title or artist blank
-        results = track_getinfo(self.config.lastfm_api_key, data[0], data[1])
+        _ = track_getinfo(self.config.lastfm_api_key, data[0], data[1])
         # if results:
         # self.push_data(results)
         # TODO: pull the title and artist then search lastfm
         # populate on success
-        pass
 
-    def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:  
+    def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
         """Check if an action may run."""
         if action == "search" and self.config.lastfm_api_key == "":
             self.app.notify(

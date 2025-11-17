@@ -2,6 +2,8 @@
 	border: $border round
 }
 
-Vertical {
+
+#text-fields {
 	width: 50%;
+	margin-right: 2;
 }

@@ -41,39 +41,26 @@ class SettingsPage(Screen):
         self.tags_list.border_title = "auto-select tags"
 
         self.load_config()
-        self.update_tags_list()
 
         yield self.lastfm_api_key
         yield self.filename_format
         yield self.tag_entry
         yield self.tags_list
-        yield Button("continue", variant="primary", flat=True)
+        yield Button("save config", variant="primary", flat=True)
         yield Footer()
 
     @on(Input.Submitted)
     def on_input_submitted(self, event: Input.Submitted) -> None:
         # make sure this tag is not already in the list
-        if event.value in self.tags_list.selected:
+        if event.value in [option.prompt for option in self.tags_list.options]:
             self.app.notify(
                 "Hey, that tag is already in the list!",
                 severity="warning",
             )
             return
-        # add tag to the list and clear the input to prepare for another
-        self.tags.append(event.value)
-        self.update_tags_list()
+        # TODO: possibly sanitize? (lower?)
+        self.tags_list.add_option((event.value, event.value, True))
         self.tag_entry.clear()
-
-    @on(SelectionList.SelectionToggled)
-    def on_selectionlist_selectiontoggled(self, event: SelectionList.SelectionToggled) -> None:
-        tag = self.tags_list.get_option_at_index(event.selection_index)
-        if not tag.disabled:
-            self.tags.remove(tag.value)
-            self.update_tags_list()
-
-    def update_tags_list(self) -> None:
-        self.tags_list.clear_options()
-        self.tags_list.add_options(items=[(tag, tag, True) for tag in self.tags])
 
     @on(Button.Pressed)
     def on_button_pressed(self, _: Button.Pressed) -> None:
@@ -88,8 +75,7 @@ class SettingsPage(Screen):
                 tags=self.tags_list.selected,
             )
         )
-        self.app.install_screen(FileSelectPage(), "fileselect")
-        self.app.push_screen("fileselect")
+        self.app.notify("Configuration saved successfully!", severity="information")
 
     def load_config(self) -> None:
         config = load_config(self.app)
@@ -97,7 +83,8 @@ class SettingsPage(Screen):
             self.lastfm_api_key.value = config.lastfm_api_key
         if config.filename_format != "":
             self.filename_format.value = config.filename_format
-        self.tags = config.tags
+        for tag in config.tags:
+            self.tags_list.add_option((tag, tag, True))
 
     def validate_lastfm_api_key(self) -> bool:
         # if no key is provided, assume they will be entering values manually
@@ -106,7 +93,7 @@ class SettingsPage(Screen):
         # query something just to see if the key is valid
         if track_getinfo(self.lastfm_api_key.value, "Dirt", "Alice in Chains") is None:
             self.app.notify(
-                "Hey, your last.fm key was unable to query successfully!",
+                "Hey, your last.fm key was unable to query successfully! Configuration not saved.",
                 severity="error",
             )
             return False
@@ -119,7 +106,7 @@ class SettingsPage(Screen):
             character in self.filename_format.value for character in illegal_characters
         ):
             self.app.notify(
-                "Hey, there is an invalid character in your filename format!",
+                "Hey, there is an invalid character in your filename format! Configuration not saved.",
                 severity="error",
             )
             return False
