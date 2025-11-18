@@ -1,5 +1,6 @@
 from typing import List
 
+from rich.table import Table
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -9,12 +10,23 @@ from textual.widgets import Button, Footer, Input, SelectionList
 from util.config import Config, load_config, save_config
 from util.query import track_getinfo
 
-
 class SettingsPage(Screen):
 
     BINDINGS = [Binding("escape", "exit_settings", "exit settings")]
 
     def compose(self) -> ComposeResult:
+
+        filename_tooltip = Table(title="Filename Variables")
+
+        filename_tooltip.add_column("format specifier", style=self.app.theme_variables["primary"])
+        filename_tooltip.add_column("attribute", style=self.app.theme_variables["accent"])
+
+        filename_tooltip.add_row("%t", "title")
+        filename_tooltip.add_row("%a", "artist")
+        filename_tooltip.add_row("%T", "album title")
+        filename_tooltip.add_row("%A", "album artist")
+
+
         self.lastfm_api_key: Input = Input(
             placeholder="last.fm API key",
             id="lastfm-api-key",
@@ -23,11 +35,10 @@ class SettingsPage(Screen):
         )
         self.lastfm_api_key.border_title = "last.fm API key"
         self.filename_format: Input = Input(
-            # TODO: format tooltip as some kind of rich table ( | %t | title | )
             placeholder="filename format",
             id="filename-format",
             classes="round-border",
-            tooltip="TODO",
+            tooltip=filename_tooltip,
         )
         self.filename_format.border_title = "filename format"
         self.tag_entry: Input = Input(placeholder="tag", id="tag-entry", classes="round-border")
@@ -35,8 +46,7 @@ class SettingsPage(Screen):
         self.tags: List[str] = []
         self.tags_list: SelectionList = SelectionList(id="tags-list", classes="round-border")
         self.tags_list.tooltip = "these tags will be automatically selected if provided by last.fm"
-        # TODO: come up with a better name for this
-        self.tags_list.border_title = "auto-select tags"
+        self.tags_list.border_title = "priority tags"
 
         self.load_config()
 

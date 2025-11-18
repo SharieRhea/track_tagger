@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 from typing import List
@@ -6,11 +7,17 @@ from rich.style import Style
 from rich.text import Text
 from textual import on
 from textual.app import ComposeResult
+from textual.logging import TextualHandler
 from textual.screen import Screen
 from textual.widgets import Button, DirectoryTree, Footer
 from textual.widgets.tree import TreeNode
 
 from pages.editpage import EditPage
+
+logging.basicConfig(
+    level="NOTSET",
+    handlers=[TextualHandler()],
+)
 
 
 class FileSelectPage(Screen):
@@ -28,6 +35,8 @@ class FileSelectPage(Screen):
         yield Footer()
 
     # FIX: weird behavior with selecting a dir, sometimes takes two key presses
+    # NOTE: what's happening here is the files within a directory are not loaded by textual until you expand the directory node itself
+    # possible fix might be to manually "expand and hide" when user presses enter
     @on(DirectoryTree.DirectorySelected)
     def on_directorytree_directoryselected(self, event: DirectoryTree.DirectorySelected) -> None:
         # NOTE: i am choosing to not traverse subdirectories here
@@ -77,7 +86,7 @@ class FileSelectPage(Screen):
         self.app.push_screen("edit")
 
     def retrieve_full_path(self, node: TreeNode, path: str) -> str:
-        # TODO: this may need to be modified to work for windows/when the user has a configured directory
+        # TODO: this may need to be modified to work when the user has a configured default directory
 
         # prepend this node's label to what we have so far
         path = os.path.join(str(node.label), path)
@@ -88,7 +97,6 @@ class FileSelectPage(Screen):
                 tree_path = Path(node.tree.path).resolve()
                 return os.path.join(tree_path, path)
             else:
-                # TODO: throw some kind of error log here, this should never happen
-                raise Exception("Tree was somehow not a DirectoryTree instance! Unable to prepend path.")
+                raise Exception("TreeNode root was not a DirectoryTree instance! Unable to retrieve path.")
         # recursively walk up the tree
         return self.retrieve_full_path(node.parent, path)

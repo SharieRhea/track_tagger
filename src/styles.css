@@ -15,3 +15,14 @@
 #right-column {
 	align: center middle;
 }
+
+#album-art-fileselect {
+	width: 50%;
+	height: 30%;
+}
+
+#dialog {
+	width: 50%;
+	height: 30%;
+	hatch: right $background 40%;
+}

@@ -10,6 +10,7 @@ from textual.containers import Center, Horizontal, Vertical
 from textual.logging import TextualHandler
 from textual.screen import Screen
 from textual.widgets import (
+    Button,
     Footer,
     Input,
     Label,
@@ -78,6 +79,8 @@ class EditPage(Screen):
         self.tags_list.border_title = "tags"
         self.push_data()
 
+        self.update_button: Button = Button("update", id="update-button", variant="primary")
+
         with Horizontal(id="editpage-columns"):
             yield self.filenames_list
             with Vertical(id="left-column"):
@@ -91,6 +94,7 @@ class EditPage(Screen):
             with Vertical(id="right-column"):
                 with Center():
                     yield self.album_art
+                    yield self.update_button
         yield Footer()
 
     def pull_data(self) -> tuple:
@@ -103,6 +107,13 @@ class EditPage(Screen):
             self.tags_list.selected,
         )
         return data
+
+    # TODO: put button underneath album art called "update"
+    # when clicked, two options: upload a local file or paste a link
+    # upload local file opens fileTree modalscreen
+
+    # modal screen should only show image files (png, jpg, webp??)
+    # i want it to be centered and have a hatched background (somewhat transparent)
 
     def push_data(self) -> None:
         self.filename.update(self.file_paths[self.file_index].name)
@@ -123,6 +134,11 @@ class EditPage(Screen):
         self.tags_list.clear_options()
         for tag in tags:
             self.tags_list.add_option(Selection(tag, tag, True))
+
+    @on(Button.Pressed)
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        # TODO: launch modal
+        pass
 
     @on(ListView.Selected)
     def on_listview_selected(self, event: ListView.Selected) -> None:
