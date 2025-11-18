@@ -2,7 +2,16 @@
 	border: $border round
 }
 
-#text-fields {
-	width: 50%;
+#filenames-list {
+	width: 25%;
 	margin-right: 2;
+}
+
+#left-column {
+	width: 40%;
+	margin-right: 2;
+}
+
+#right-column {
+	align: center middle;
 }
