@@ -48,8 +48,11 @@ class EditPage(Screen):
 
     def compose(self) -> ComposeResult:
         self.filenames_list: ListView = ListView(
-            *[ListItem(Label(file.name)) for file in self.file_paths], id="filenames-list"
+            *[ListItem(Label(file.name), classes="filename-list-item") for file in self.file_paths],
+            id="filenames-list",
+            classes="round-border"
         )
+        self.filenames_list.border_title = "files"
 
         self.filename: Label = Label(id="filename", classes="round-border")
         self.title_input: Input = Input(placeholder="title", id="title", classes="round-border")
@@ -79,7 +82,7 @@ class EditPage(Screen):
         self.tags_list.border_title = "tags"
         self.push_data()
 
-        self.update_button: Button = Button("update", id="update-button", variant="primary")
+        self.update_button: Button = Button("update", id="update-button", variant="primary", flat=True)
 
         with Horizontal(id="editpage-columns"):
             yield self.filenames_list
@@ -91,9 +94,10 @@ class EditPage(Screen):
                 yield self.album_artist_input
                 yield self.tag_entry
                 yield self.tags_list
-            with Vertical(id="right-column"):
+            with Vertical(id="right-column", classes="center"):
                 with Center():
                     yield self.album_art
+                with Center():
                     yield self.update_button
         yield Footer()
 

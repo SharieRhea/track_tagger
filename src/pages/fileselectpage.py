@@ -26,12 +26,15 @@ class FileSelectPage(Screen):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        self.filetree = DirectoryTree(".")
+        self.add_class("center")
+        self.filetree = DirectoryTree(".", id="file-select", classes="round-border")
+        self.filetree.border_title = "select music files to edit:"
         # stop "enter" from expanding/collapsing dirs
         self.filetree.auto_expand = False
         self.selected_files: List[Path] = []
+
         yield self.filetree
-        yield Button("continue")
+        yield Button("continue", id="continue-button", variant="primary", flat=True)
         yield Footer()
 
     # FIX: weird behavior with selecting a dir, sometimes takes two key presses

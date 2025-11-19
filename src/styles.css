@@ -2,6 +2,21 @@
 	border: $border round
 }
 
+.center {
+	align: center middle;
+}
+
+ListItem > Label {
+	width: 100%;
+	text-wrap: nowrap;
+	text-overflow: ellipsis;
+}
+
+#file-select {
+	height: 70%;
+	width: 90%;
+}
+
 #filenames-list {
 	width: 25%;
 	margin-right: 2;
@@ -12,17 +27,6 @@
 	margin-right: 2;
 }
 
-#right-column {
-	align: center middle;
-}
-
-#album-art-fileselect {
-	width: 50%;
-	height: 30%;
-}
-
-#dialog {
-	width: 50%;
-	height: 30%;
-	hatch: right $background 40%;
+#album-art {
+	margin-bottom: 1;
 }
