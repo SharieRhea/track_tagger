@@ -1,7 +1,9 @@
 import logging
+from io import BytesIO
 from pathlib import Path
 from typing import List
 
+from PIL import Image
 from rich_pixels import Pixels
 from textual import on
 from textual.app import ComposeResult
@@ -21,14 +23,17 @@ from textual.widgets import (
 )
 from textual.widgets.selection_list import Selection
 
+from modals.albumartselectmodal import AlbumArtSelectModal
 from util.config import load_config
 from util.metadata import read_metadata, write_metadata
-from util.query import track_getinfo
+from util.query import get_album_image, track_getinfo
 
 logging.basicConfig(
     level="NOTSET",
     handlers=[TextualHandler()],
 )
+
+# TODO: add some type of indication that there are unsaved changes!
 
 
 class EditPage(Screen):
@@ -112,13 +117,6 @@ class EditPage(Screen):
         )
         return data
 
-    # TODO: put button underneath album art called "update"
-    # when clicked, two options: upload a local file or paste a link
-    # upload local file opens fileTree modalscreen
-
-    # modal screen should only show image files (png, jpg, webp??)
-    # i want it to be centered and have a hatched background (somewhat transparent)
-
     def push_data(self) -> None:
         self.filename.update(self.file_paths[self.file_index].name)
         data = read_metadata(self.file_paths[self.file_index])
@@ -139,10 +137,27 @@ class EditPage(Screen):
         for tag in tags:
             self.tags_list.add_option(Selection(tag, tag, True))
 
+    def update_album_art(self, result: Path | str | None) -> None:
+        if not result:
+            return
+
+        if isinstance(result, Path):
+            # this is a local file, open it and set the album art
+            self.album_art_raw = Image.open(result)
+            # TODO: what happens when an image isn't actually a square? does it crop?
+            image = Pixels.from_image(self.album_art_raw.resize((40, 40)))
+            self.album_art.update(image)
+        else:
+            # must be a string, and be a valid image link
+            image_bytes = get_album_image(result)
+            if image_bytes:
+                self.album_art_raw = Image.open(BytesIO(image_bytes))
+                image = Pixels.from_image(self.album_art_raw.resize((40, 40)))
+                self.album_art.update(image)
+
     @on(Button.Pressed)
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        # TODO: launch modal
-        pass
+    def on_button_pressed(self, _: Button.Pressed) -> None:
+        self.app.push_screen(AlbumArtSelectModal(), self.update_album_art)
 
     @on(ListView.Selected)
     def on_listview_selected(self, event: ListView.Selected) -> None:

@@ -13,8 +13,8 @@ ListItem > Label {
 }
 
 #file-select {
-	height: 70%;
-	width: 90%;
+	height: 60%;
+	width: 70%;
 }
 
 #filenames-list {
@@ -29,4 +29,9 @@ ListItem > Label {
 
 #album-art {
 	margin-bottom: 1;
+}
+
+#album-art-select-modal {
+	height: 60%;
+	width: 70%;
 }

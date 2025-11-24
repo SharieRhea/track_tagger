@@ -43,4 +43,5 @@ def get_album_image(url) -> bytes | None:
     info = requests.get(url)
     if info.status_code != 200:
         return None
+    # FIX: sanitize this and make sure it's an image
     return info.content

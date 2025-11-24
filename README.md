@@ -76,4 +76,4 @@ track_tagger is under development, *please* submit issues for any bugs you find 
 - [ ] ability to toggle tag behavior
     - default: selecting a tag (provided by last.fm) saves for the current session only
     - persistent: selecting a tag (provided by last.fm) saves in persistent configuration
-- [ ] support for other sites (discogs)
+- [ ] support for other sites (discogs, beets.io)

@@ -5,6 +5,7 @@ from pathlib import Path
 
 import music_tag
 from PIL import Image
+from PIL.JpegImagePlugin import JpegImageFile
 from PIL.PngImagePlugin import PngImageFile
 from textual.logging import TextualHandler
 
@@ -52,6 +53,11 @@ def write_metadata(filepath: Path, data: tuple) -> bool:
         if isinstance(data[4], PngImageFile):
             bytes_io = BytesIO()
             data[4].save(bytes_io, format="PNG")
+            bytes_io.seek(0)
+            image_bytes = bytes_io.read()
+        elif isinstance(data[4], JpegImageFile):
+            bytes_io = BytesIO()
+            data[4].save(bytes_io, format="JPEG")
             bytes_io.seek(0)
             image_bytes = bytes_io.read()
         elif data[4].src_base64 is not None and data[4].src_base64 != "":
