@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 import requests
 
@@ -32,11 +33,24 @@ def track_getinfo(key, title, artist) -> dict | None:
     if info.status_code != 200:
         return None
     logging.info(info.json())
-    _ = info.json()
+    results = info.json()
 
-    # TODO: validate and turn into tuple
+    if not results or "track" not in results:
+        return None
 
-    return info.json()
+    data = {}
+    data["track_title"] = results["track"]["name"]
+    data["artist"] = results["track"]["artist"]["name"]
+    data["album_title"] = results["track"]["album"]["title"]
+    data["album_artist"] = results["track"]["album"]["artist"]
+    # TODO: handle when there is no valid image list
+    data["album_art"] = results["track"]["album"]["image"][-1]["#text"]
+    tags: List[str] = []
+    for tag in results["track"]["toptags"]["tag"]:
+        tags.append(tag["name"].lower())
+    data["tags"] = tags
+
+    return data
 
 
 def get_album_image(url) -> bytes | None:

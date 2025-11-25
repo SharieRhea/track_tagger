@@ -61,11 +61,11 @@ track_tagger is under development, *please* submit issues for any bugs you find 
 
 - [x] select a directory or file(s)
 - [x] read existing metadata from a file
-- [ ] write new metadata to a file
-    - [ ] handling multiple image sources (last.fm, local file)
-- [ ] search last.fm for a track's info based on title and artist
+- [x] write new metadata to a file
+    - [x] handling multiple image sources (last.fm, local file)
+- [x] search last.fm for a track's info based on title and artist
 - [x] persistent settings (API key, file name format, locked tags)
-- [ ] list of session files next to edit page
+- [x] list of session files next to edit page
 - [ ] add logging!
 - [ ] add tests!
 
@@ -76,4 +76,4 @@ track_tagger is under development, *please* submit issues for any bugs you find 
 - [ ] ability to toggle tag behavior
     - default: selecting a tag (provided by last.fm) saves for the current session only
     - persistent: selecting a tag (provided by last.fm) saves in persistent configuration
-- [ ] support for other sites (discogs, beets.io)
+- [ ] support for other sites? (discogs, beets.io, pandora)

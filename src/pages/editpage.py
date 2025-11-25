@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List
 
 from PIL import Image
+from PIL.ImageFile import ImageFile
 from rich_pixels import Pixels
 from textual import on
 from textual.app import ComposeResult
@@ -87,6 +88,10 @@ class EditPage(Screen):
         self.tags_list.border_title = "tags"
         self.push_data()
 
+        # force sizing for the album art for the layout to look nice
+        self.album_art.styles.width = 40
+        self.album_art.styles.height = 20
+
         self.update_button: Button = Button("update", id="update-button", variant="primary", flat=True)
 
         with Horizontal(id="editpage-columns"):
@@ -106,54 +111,53 @@ class EditPage(Screen):
                     yield self.update_button
         yield Footer()
 
-    def pull_data(self) -> tuple:
-        data = (
-            self.title_input.value,
-            self.artist_input.value,
-            self.album_title_input.value,
-            self.album_artist_input.value,
-            self.album_art_raw,
-            self.tags_list.selected,
-        )
+    def pull_data(self) -> dict:
+        data = {}
+        data["track_title"] = self.title_input.value
+        data["artist"] = self.artist_input.value
+        data["album_title"] = self.album_title_input.value
+        data["album_artist"] = self.album_artist_input.value
+        data["album_art"] = self.album_art_raw
+        data["tags"] = self.tags_list.selected
         return data
 
-    def push_data(self) -> None:
+    def push_data(self, data: dict | None = None) -> None:
         self.filename.update(self.file_paths[self.file_index].name)
-        data = read_metadata(self.file_paths[self.file_index])
+        if not data:
+            data = read_metadata(self.file_paths[self.file_index])
 
-        self.title_input.value = data[0]
-        self.artist_input.value = data[1]
-        self.album_title_input.value = data[2]
-        self.album_artist_input.value = data[3]
+        self.title_input.value = data["track_title"]
+        self.artist_input.value = data["artist"]
+        self.album_title_input.value = data["album_title"]
+        self.album_artist_input.value = data["album_artist"]
 
-        self.album_art_raw = data[4]
-        image = Pixels.from_image(data[4].resize((40, 40)))
-        self.album_art.update(image)
-        self.album_art.styles.width = 40
-        self.album_art.styles.height = 20
+        self.update_album_art(data["album_art"])
 
-        tags: List[str] = data[5]
+        tags: List[str] = data["tags"]
+        logging.debug(tags)
         self.tags_list.clear_options()
         for tag in tags:
             self.tags_list.add_option(Selection(tag, tag, True))
 
-    def update_album_art(self, result: Path | str | None) -> None:
-        if not result:
+    def update_album_art(self, data: ImageFile | Path | str | None) -> None:
+        if not data:
             return
 
-        if isinstance(result, Path):
+        if isinstance(data, Path):
             # this is a local file, open it and set the album art
-            self.album_art_raw = Image.open(result)
-            # TODO: what happens when an image isn't actually a square? does it crop?
-            image = Pixels.from_image(self.album_art_raw.resize((40, 40)))
-            self.album_art.update(image)
-        else:
-            # must be a string, and be a valid image link
-            image_bytes = get_album_image(result)
+            self.album_art_raw = Image.open(data)
+        elif isinstance(data, str):
+            # this is an image link
+            image_bytes = get_album_image(data)
             if image_bytes:
                 self.album_art_raw = Image.open(BytesIO(image_bytes))
-                image = Pixels.from_image(self.album_art_raw.resize((40, 40)))
-                self.album_art.update(image)
+        else:
+            # this is already the opened image, just set it
+            self.album_art_raw = data
+
+        # TODO: what happens when an image isn't actually a square? does it crop?
+        image = Pixels.from_image(self.album_art_raw.resize((40, 40)))
+        self.album_art.update(image)
 
     @on(Button.Pressed)
     def on_button_pressed(self, _: Button.Pressed) -> None:
@@ -195,7 +199,6 @@ class EditPage(Screen):
         self.file_index += 1
         self.push_data()
         self.refresh_bindings()
-        # self.filenames_list.highlighted_child = self.filenames_list. [self.file_index]
         self.filenames_list.index = self.file_index
 
     def action_previous(self) -> None:
@@ -208,11 +211,10 @@ class EditPage(Screen):
         self.refresh_bindings()
         data = self.pull_data()
         # TODO: error handle title or artist blank
-        _ = track_getinfo(self.config.lastfm_api_key, data[0], data[1])
-        # if results:
-        # self.push_data(results)
-        # TODO: pull the title and artist then search lastfm
-        # populate on success
+        result = track_getinfo(self.config.lastfm_api_key, data["track_title"], data["artist"])
+        if result:
+            self.push_data(result)
+            self.app.notify(f"last.fm query for {data["track_title"]} by {data["artist"]} successful!", severity="information")
 
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
         """Check if an action may run."""
