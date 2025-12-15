@@ -56,7 +56,7 @@ class EditPage(Screen):
         self.filenames_list: ListView = ListView(
             *[ListItem(Label(file.name), classes="filename-list-item") for file in self.file_paths],
             id="filenames-list",
-            classes="round-border"
+            classes="round-border",
         )
         self.filenames_list.border_title = "files"
 
@@ -86,7 +86,7 @@ class EditPage(Screen):
         self.tag_entry.border_title = "new tag"
         self.tags_list: SelectionList = SelectionList(id="tags-list", classes="round-border")
         self.tags_list.border_title = "tags"
-        self.push_data()
+        self.push_data(from_file=True)
 
         # force sizing for the album art for the layout to look nice
         self.album_art.styles.width = 40
@@ -121,7 +121,7 @@ class EditPage(Screen):
         data["tags"] = self.tags_list.selected
         return data
 
-    def push_data(self, data: dict | None = None) -> None:
+    def push_data(self, data: dict | None = None, from_file: bool = False) -> None:
         self.filename.update(self.file_paths[self.file_index].name)
         if not data:
             data = read_metadata(self.file_paths[self.file_index])
@@ -134,10 +134,20 @@ class EditPage(Screen):
         self.update_album_art(data["album_art"])
 
         tags: List[str] = data["tags"]
-        logging.debug(tags)
-        self.tags_list.clear_options()
-        for tag in tags:
-            self.tags_list.add_option(Selection(tag, tag, True))
+
+        if from_file:
+            # when reading from the file itself, clear everything and auto-select all tags
+            self.tags_list.clear_options()
+            for tag in tags:
+                self.tags_list.add_option(Selection(tag, tag, True))
+        else:
+            # these tags are coming from an external source
+            # just append them, only select ones from the auto-select configuration
+            existing_tags = [option.prompt for option in self.tags_list.options]
+            for tag in tags:
+                if tag not in existing_tags:
+                    selected = tag in self.config.tags
+                    self.tags_list.add_option(Selection(tag, tag, selected))
 
     def update_album_art(self, data: ImageFile | Path | str | None) -> None:
         if not data:
@@ -197,13 +207,13 @@ class EditPage(Screen):
 
     def action_next(self) -> None:
         self.file_index += 1
-        self.push_data()
+        self.push_data(from_file=True)
         self.refresh_bindings()
         self.filenames_list.index = self.file_index
 
     def action_previous(self) -> None:
         self.file_index -= 1
-        self.push_data()
+        self.push_data(from_file=True)
         self.refresh_bindings()
         self.filenames_list.index = self.file_index
 
@@ -211,10 +221,19 @@ class EditPage(Screen):
         self.refresh_bindings()
         data = self.pull_data()
         # TODO: error handle title or artist blank
+        if data["track_title"] == "":
+            self.app.notify("You need to provide a track title to search using last.fm!", severity="error")
+            return
+        if data["artist"] == "":
+            self.app.notify("You need to provide an artist to search using last.fm!", severity="error")
+            return
+
         result = track_getinfo(self.config.lastfm_api_key, data["track_title"], data["artist"])
         if result:
             self.push_data(result)
-            self.app.notify(f"last.fm query for {data["track_title"]} by {data["artist"]} successful!", severity="information")
+            self.app.notify(
+                f"last.fm query for {data["track_title"]} by {data["artist"]} successful!", severity="information"
+            )
 
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
         """Check if an action may run."""
